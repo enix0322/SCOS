@@ -91,7 +91,6 @@ public class MainScreen extends Activity {
         gridView = (GridView) findViewById(R.id.gridview);
         user = new User("temp","0");
         change_gridview();
-
         String[] from={"img","text"};
 
         int[] to={R.id.img,R.id.text};
