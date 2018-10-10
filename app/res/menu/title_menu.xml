@@ -1,0 +1,19 @@
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/ordered"
+        android:showAsAction="never|withText"
+        android:title="@string/action_ordered"
+        tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/order_list"
+        android:showAsAction="never|withText"
+        android:title="@string/action_order_list"
+        tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/call_server"
+        android:showAsAction="never|withText"
+        android:title="@string/action_call_server"
+        tools:ignore="AppCompatResource" />
+</menu>

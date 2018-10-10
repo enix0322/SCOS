@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">SCOS</string>
+    <string name="title_activity_main_screen">MainScreen</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_login_or_register">Sign in</string>
+    <!-- Strings related to login -->
+    <string name="prompt_username">登陆名</string>
+    <string name="prompt_password">登陆密码</string>
+    <string name="action_sign_in">注册</string>
+    <string name="action_login">登陆</string>
+    <string name="action_back">返回</string>
+    <string name="action_order">点菜</string>
+    <string name="action_ordered">已点菜品</string>
+    <string name="action_order_list">查看订单</string>
+    <string name="action_call_server">呼叫服务</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_username">用户名输入内容不符合规则</string>
+    <string name="error_invalid_password">密码输入内容不符合规则</string>
+    <string name="error_incorrect_password">密码输入错误</string>
+    <string name="error_password_empty">密码不能为空</string>
+    <string name="error_username_empty">用户名不能为空</string>
+
+    <string name="food_total_num">菜品总数</string>
+    <string name="food_total_price">订单总价</string>
+    <string name="settle_accounts">结账</string>
+    <string name="food_cancel">退点</string>
+
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+</resources>
