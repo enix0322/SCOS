@@ -99,7 +99,6 @@ public class MainScreen extends Activity {
         adapter=new SimpleAdapter(this, dataList, R.layout.gridview_item, from, to);
 
         gridView.setAdapter(adapter);
-
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             Intent intent = new Intent();
             @Override
