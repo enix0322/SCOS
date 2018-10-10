@@ -28,7 +28,6 @@ public class FoodOrderView extends AppCompatActivity implements FragmentOrderFoo
     private List<String> list;
     FragmentOrderFood fragmentorderfood;
     User user;
-    //数据源
     private String[] titles = {"未下单菜","已下单菜"};
     @Override
 
