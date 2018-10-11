@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -22,10 +23,10 @@ import es.source.code.model.User;
 
 public class FoodOrderView extends AppCompatActivity implements FragmentOrderFood.CallBack{
 
-    private static FoodOrderView mInstance;
     private TabLayout tablayout;
     private ViewPager viewPager;
     private List<String> list;
+    private int tab;
     FragmentOrderFood fragmentorderfood;
     User user;
     private String[] titles = {"未下单菜","已下单菜"};
@@ -36,6 +37,8 @@ public class FoodOrderView extends AppCompatActivity implements FragmentOrderFoo
         setContentView(R.layout.food_order_view);
         tablayout = findViewById(R.id.tablayout);
         viewPager = findViewById(R.id.viewpager);
+
+        tab = getIntent().getExtras().getInt("tab");
         user = (User)getIntent().getSerializableExtra("User");
         list = new ArrayList<>();
         list.add(titles[0]);
@@ -46,7 +49,8 @@ public class FoodOrderView extends AppCompatActivity implements FragmentOrderFoo
         MyPagerAdapter myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
         viewPager.setAdapter(myPagerAdapter);
-        tablayout.setupWithViewPager(viewPager);
+        tablayout.setupWithViewPager(viewPager, true);
+        tablayout.getTabAt(tab).select();
         //每条之间的分割线
         LinearLayout linearLayout = (LinearLayout) tablayout.getChildAt(0);
         linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
@@ -64,7 +68,23 @@ public class FoodOrderView extends AppCompatActivity implements FragmentOrderFoo
                 user.Clear_Order_Food_List();
                 break;
         }
+        FragmentManager fgManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fgManager.beginTransaction();
+        fragmentTransaction.remove(fragmentorderfood);
+        MyPagerAdapter myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(myPagerAdapter);
+        tablayout.getTabAt(1).select();
     }
+
+    public void event_cancel(Food food) {
+        user.Delet_Not_Order_Food_List(food);
+        FragmentManager fgManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fgManager.beginTransaction();
+        fragmentTransaction.remove(fragmentorderfood);
+        MyPagerAdapter myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(myPagerAdapter);
+    }
+
 
     class MyPagerAdapter extends FragmentPagerAdapter {
         public MyPagerAdapter(FragmentManager fm) {
@@ -79,16 +99,13 @@ public class FoodOrderView extends AppCompatActivity implements FragmentOrderFoo
             fragmentorderfood = new FragmentOrderFood();
             if (list.get(position).equals(titles[0])){
                 fragmentorderfood.set_fragment_type("not_ordered");
+                fragmentorderfood.set_user(user);
             }else if (list.get(position).equals(titles[1])){
                 fragmentorderfood.set_fragment_type("ordered");
                 fragmentorderfood.set_user(user);
             }
             fragmentorderfood.add_Not_Order_Food(user.Get_Not_Order_Food_List());
             fragmentorderfood.add_Order_Food(user.Get_Order_Food_List());
-            fragmentorderfood.set_total_not_order_price(CountPrice(user.Get_Not_Order_Food_List()));
-            fragmentorderfood.set_total_not_order_num(CountNum(user.Get_Not_Order_Food_List()));
-            fragmentorderfood.set_total_order_price(CountPrice(user.Get_Order_Food_List()));
-            fragmentorderfood.set_total_order_num(CountNum(user.Get_Order_Food_List()));
             return fragmentorderfood;
         }
         @Override
@@ -96,35 +113,6 @@ public class FoodOrderView extends AppCompatActivity implements FragmentOrderFoo
             return titles.length;
         }
 
-    }
-
-    //获取总价格数
-    private static int CountPrice(List<Food> list) {
-        int total_price = 0;
-        if (list == null){
-            return 0;
-        }
-        //for-each 遍历
-        for (Food food : list) {
-            total_price = total_price + Integer.parseInt(food.get_food_price());
-        }
-        return total_price;
-    }
-
-    //获取总价格数
-    private static int CountNum(List<Food> list) {
-        int total_num = 0;
-        if (list == null){
-            return 0;
-        }
-        if (list.size() == 0){
-            return 0;
-        }
-        //for-each 遍历
-        for (Food food : list) {
-                total_num = total_num + Integer.parseInt(food.get_food_num());
-        }
-        return total_num;
     }
 
     @Override

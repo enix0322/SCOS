@@ -28,7 +28,7 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
     }
 
     public interface CallBack{
-        void onClick(View v);
+        void onClick(View v, boolean cancel);
     }
 
     @Override
@@ -66,15 +66,29 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
         mViewHolder.food_price.setTag(position);
         mViewHolder.food_name.setText(food_data.get_food_name());
         mViewHolder.food_price.setText(food_data.get_food_price()+"元");
-
+        if(food_data.get_food_order()==true) {
+            mViewHolder.food_order.setText("退点");
+        }
+        if(food_data.get_food_order()==false) {
+            mViewHolder.food_order.setText("点菜");
+        }
         mViewHolder.food_order.setOnClickListener(this);
         return convertView;
     }
 
     @Override
     public void onClick(View view) {
-        showToast(mContext,"点菜成功");
-        mCallBack.onClick(view);
+        if(mViewHolder.food_order.getText().equals("点菜")) {
+            mViewHolder.food_order.setText("退点");
+            mCallBack.onClick(view,false);
+            showToast(mContext,"点菜成功");
+        }
+        else if(mViewHolder.food_order.getText().equals("退点")) {
+            mViewHolder.food_order.setText("点菜");
+            mCallBack.onClick(view,true);
+            showToast(mContext,"退点成功");
+        }
+        notifyDataSetChanged();
     }
 
     public class ViewHolder {

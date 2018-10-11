@@ -33,10 +33,6 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
     Food_Order_Adapter food_order_adapter;
     Food_Not_Order_Adapter food_not_order_adapter;
     private ListView list_food;
-    private int total_notorder_price;
-    private int total_notorder_num;
-    private int total_order_price;
-    private int total_order_num;
     User user;
 
     TextView food_total_num;
@@ -47,6 +43,7 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
 
     public interface CallBack{
         void event(String type);
+        void event_cancel(Food food);
     }
 
     public static void setCallBack(CallBack callBack) {
@@ -70,8 +67,8 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
                 list_food = view.findViewById(R.id.food_list_view);
                 list_food.setAdapter(food_not_order_adapter);
                 settle_accounts.setText("提交订单");
-                food_total_num.setText(String.valueOf(total_notorder_num)+"份");
-                food_total_price.setText(String.valueOf(total_notorder_price)+"元");
+                food_total_num.setText(String.valueOf(CountNum(user.Get_Not_Order_Food_List()))+"份");
+                food_total_price.setText(String.valueOf(CountPrice(user.Get_Not_Order_Food_List()))+"元");
                 break;
 
             case "ordered":
@@ -79,21 +76,25 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
                 list_food = view.findViewById(R.id.food_list_view);
                 list_food.setAdapter(food_order_adapter);
                 settle_accounts.setText("结账");
-                food_total_num.setText(String.valueOf(total_order_num)+"份");
-                food_total_price.setText(String.valueOf(total_order_price)+"元");
+                food_total_num.setText(String.valueOf(CountNum(user.Get_Order_Food_List()))+"份");
+                food_total_price.setText(String.valueOf(CountPrice(user.Get_Order_Food_List()))+"元");
                 break;
         }
         //listview监听
         list_food.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Food food = Food_Not_Order_data.get(i);
-                Intent intent = new Intent();
-                intent.setClass(getActivity().getApplicationContext(), FoodDetailed.class);
-                intent.putExtra("Food", food);
-                intent.putExtra("position",i);
-                intent.putExtra("FoodList", (Serializable)Food_Not_Order_data);
-                startActivity(intent);
+                if(fragment_type.equals("not_ordered")) {
+                    Food food = Food_Not_Order_data.get(i);
+                    Intent intent = new Intent();
+                    intent.setClass(getActivity().getApplicationContext(), FoodDetailed.class);
+                    intent.putExtra("String", "FoodOrderView");
+                    intent.putExtra("Food", food);
+                    intent.putExtra("User", user);
+                    intent.putExtra("position", i);
+                    intent.putExtra("FoodList", (Serializable) Food_Not_Order_data);
+                    startActivity(intent);
+                }
             }
         });
         return view;
@@ -116,38 +117,56 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
        this.fragment_type = fragment_type;
     }
 
-    public void set_total_not_order_price(int total_price){
-        this.total_notorder_price = total_price;
-    }
-
-    public void set_total_not_order_num(int total_num){
-        this.total_notorder_num = total_num;
-    }
-
-    public void set_total_order_price(int total_price){
-        this.total_order_price = total_price;
-    }
-
-    public void set_total_order_num(int total_num){
-        this.total_order_num = total_num;
-    }
-
     public void set_user(User user){
         this.user = user;
     }
 
     @Override
-    public void onClick(View v) {
-        switch (fragment_type){
+    public void onClick(View view) {
+        switch (fragment_type) {
             case "not_ordered":
                 callback.event(fragment_type);
                 break;
             case "ordered":
                 callback.event(fragment_type);
-                if(user.Getter_oldUser() == true) {
-                    Toast.makeText(getActivity(),"您好，老顾客，本次你可享受 7 折优惠",Toast.LENGTH_SHORT).show();
+                if (user.Getter_oldUser() == true) {
+                    Toast.makeText(getActivity(), "您好，老顾客，本次你可享受 7 折优惠", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
+    }
+
+    public void Click(View view) {
+        Food food = Food_Not_Order_data.get((Integer) view.getTag());
+        callback.event_cancel(food);
+    }
+
+    //获取总价格数
+    private static int CountPrice(List<Food> list) {
+        int total_price = 0;
+        if (list == null){
+            return 0;
+        }
+        //for-each 遍历
+        for (Food food : list) {
+            total_price = total_price + food.get_food_price()*food.get_food_num();
+        }
+        return total_price;
+    }
+
+    //获取总价格数
+    private static int CountNum(List<Food> list) {
+        int total_num = 0;
+        if (list == null){
+            return 0;
+        }
+        if (list.size() == 0){
+            return 0;
+        }
+        //for-each 遍历
+        for (Food food : list) {
+            total_num = total_num + food.get_food_num();
+        }
+        return total_num;
     }
 }

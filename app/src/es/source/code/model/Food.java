@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 public class Food implements Serializable {
     private String food_name;
-    private String food_price;
-    private String food_num;
+    private int food_price;
+    private int food_num;
     private String food_remark;
     private boolean food_order;
 
-    public Food(String food_name, String food_price, String food_num, String food_remark) {
+    public Food(String food_name, int food_price, int food_num, String food_remark) {
         this.food_name = food_name;
         this.food_price = food_price;
         this.food_num = food_num;
@@ -17,11 +17,11 @@ public class Food implements Serializable {
         this.food_order = false;
     }
 
-    public Food(String food_name, String food_price) {
+    public Food(String food_name, int food_price) {
         this.food_name = food_name;
         this.food_price = food_price;
-        this.food_num = "1";
-        this.food_remark = "备注";
+        this.food_num = 1;
+        this.food_remark = "";
         this.food_order = false;
     }
 
@@ -32,17 +32,11 @@ public class Food implements Serializable {
         return food_name;
     }
 
-    public String get_food_price() {
-        if(food_price.equals(null)) {
-            food_price = "";
-        }
+    public int get_food_price() {
         return food_price;
     }
 
-    public String get_food_num() {
-        if(food_num.equals(null)) {
-            food_num = "";
-        }
+    public int get_food_num() {
         return food_num;
     }
 
@@ -62,12 +56,12 @@ public class Food implements Serializable {
         this.food_name = food_name;
     }
 
-    public void set_food_price(String food_price) {
+    public void set_food_price(int food_price) {
 
         this.food_price = food_price;
     }
 
-    public void set_food_num(String food_num) {
+    public void set_food_num(int food_num) {
 
         this.food_num = food_num;
     }

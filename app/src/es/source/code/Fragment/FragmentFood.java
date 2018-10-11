@@ -19,6 +19,7 @@ import java.util.List;
 import es.source.code.activity.FoodDetailed;
 import es.source.code.adpter.Food_Adapter;
 import es.source.code.model.Food;
+import es.source.code.model.User;
 
 public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
     private View  view;
@@ -27,6 +28,7 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
     Food_Adapter food_adapter;
     private ListView list_food;
     private static CallBack callback;
+    User user;
 
     public interface CallBack{
         void event(Food f);
@@ -51,7 +53,9 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
                 Food food = Food_data.get(i);
                 Intent intent = new Intent();
                 intent.setClass(getActivity().getApplicationContext(), FoodDetailed.class);
+                intent.putExtra("String", "FoodView");
                 intent.putExtra("Food", food);
+                intent.putExtra("User", user);
                 intent.putExtra("FoodList", (Serializable)Food_data);
                 startActivity(intent);
             }
@@ -66,9 +70,21 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
         this.Food_data = Food_data;
     }
 
+    public void set_user(User user){
+        this.user = user;
+    }
+
     @Override
-    public void onClick(View view) {
-        Food food = Food_data.get((Integer) view.getTag());
-        callback.event(food);
+    public void onClick(View view, boolean cancel) {
+        if(cancel == false) {
+            Food food = Food_data.get((Integer) view.getTag());
+            food.set_food_order(true);
+            callback.event(food);
+        }
+        if(cancel == true) {
+            Food food = Food_data.get((Integer) view.getTag());
+            food.set_food_order(false);
+            callback.event(food);
+        }
     }
 }

@@ -2,8 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical">
+
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,7 +54,7 @@
             android:gravity="center"
             android:text="备注：" />
 
-        <TextView
+        <EditText
             android:id="@+id/food_remark"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

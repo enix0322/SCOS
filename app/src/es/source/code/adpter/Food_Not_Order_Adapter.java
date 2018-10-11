@@ -1,6 +1,9 @@
 package es.source.code.adpter;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,13 +66,27 @@ public class Food_Not_Order_Adapter extends BaseAdapter implements View.OnClickL
         } else {
             mViewHolder = (ViewHolder) convertView.getTag();
         }
+
+        final TextWatcher onrelay_period = new MyTextWatcher() {
+            public void afterTextChanged(Editable s) {
+                if (TextUtils.isEmpty(s)) {
+                    food_data.set_food_remark(null);
+                } else {
+                    food_data.set_food_remark(s.toString());
+                }
+            }
+        };
+
         mViewHolder.food_cancel.setTag(position);
         mViewHolder.food_name.setTag(position);
         mViewHolder.food_price.setTag(position);
         mViewHolder.food_price.setText(food_data.get_food_price()+"元");
         mViewHolder.food_num.setText(food_data.get_food_num()+"份");
         mViewHolder.food_name.setText(food_data.get_food_name());
-        mViewHolder.food_remark.setText(food_data.get_food_remark());
+        if(!food_data.get_food_remark().equals("")){
+            mViewHolder.food_remark.setText(food_data.get_food_remark());
+        }
+        mViewHolder.food_remark.addTextChangedListener(onrelay_period);
         mViewHolder.food_cancel.setOnClickListener(this);
         return convertView;
     }
@@ -103,5 +120,16 @@ public class Food_Not_Order_Adapter extends BaseAdapter implements View.OnClickL
             toast.setText(content);
         }
         toast.show();
+    }
+
+    public abstract class MyTextWatcher implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
     }
 }
