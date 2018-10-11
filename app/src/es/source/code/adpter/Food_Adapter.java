@@ -19,6 +19,7 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
     private ViewHolder mViewHolder;
     private LinkedList<Food> mData;
     private Context mContext;
+    private static Toast toast;
     CallBack mCallBack;
 
     public Food_Adapter(LinkedList<Food> mData, Context mContext, CallBack callBack) {
@@ -72,9 +73,10 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
 
     @Override
     public void onClick(View view) {
-        Toast.makeText(mContext,"点菜成功",Toast.LENGTH_SHORT).show();
+        showToast(mContext,"点菜成功");
         mCallBack.onClick(view);
     }
+
     public class ViewHolder {
         TextView food_name;
         TextView food_price;
@@ -85,5 +87,14 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
             food_price = convertView.findViewById(R.id.food_price);
             food_order = convertView.findViewById(R.id.food_order);
         }
+    }
+
+    public static void showToast(Context context, String content) {
+        if (toast == null) {
+            toast = Toast.makeText(context, content, Toast.LENGTH_SHORT);
+        } else {
+            toast.setText(content);
+        }
+        toast.show();
     }
 }

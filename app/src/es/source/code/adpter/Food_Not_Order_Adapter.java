@@ -19,6 +19,7 @@ public class Food_Not_Order_Adapter extends BaseAdapter implements View.OnClickL
     private ViewHolder mViewHolder;
     private LinkedList<Food> mData;
     private Context mContext;
+    private static Toast toast;
     CallBack mCallBack;
 
     public Food_Not_Order_Adapter(LinkedList<Food> mData, Context mContext, CallBack callBack) {
@@ -27,7 +28,7 @@ public class Food_Not_Order_Adapter extends BaseAdapter implements View.OnClickL
     }
 
     public interface CallBack{
-        void onClick(View v);
+        void Click(View v);
     }
 
     @Override
@@ -62,9 +63,12 @@ public class Food_Not_Order_Adapter extends BaseAdapter implements View.OnClickL
         } else {
             mViewHolder = (ViewHolder) convertView.getTag();
         }
-        mViewHolder.food_name.setText(food_data.get_food_name());
+        mViewHolder.food_cancel.setTag(position);
+        mViewHolder.food_name.setTag(position);
+        mViewHolder.food_price.setTag(position);
         mViewHolder.food_price.setText(food_data.get_food_price()+"元");
         mViewHolder.food_num.setText(food_data.get_food_num()+"份");
+        mViewHolder.food_name.setText(food_data.get_food_name());
         mViewHolder.food_remark.setText(food_data.get_food_remark());
         mViewHolder.food_cancel.setOnClickListener(this);
         return convertView;
@@ -72,8 +76,8 @@ public class Food_Not_Order_Adapter extends BaseAdapter implements View.OnClickL
 
     @Override
     public void onClick(View view) {
-        Toast.makeText(mContext,"退点成功",Toast.LENGTH_SHORT).show();
-        mCallBack.onClick(view);
+        showToast(mContext,"退点成功");
+        mCallBack.Click(view);
     }
 
     public class ViewHolder {
@@ -90,5 +94,14 @@ public class Food_Not_Order_Adapter extends BaseAdapter implements View.OnClickL
             food_remark = convertView.findViewById(R.id.food_remark);
             food_cancel = convertView.findViewById(R.id.food_cancel);
         }
+    }
+
+    public static void showToast(Context context, String content) {
+        if (toast == null) {
+            toast = Toast.makeText(context, content, Toast.LENGTH_SHORT);
+        } else {
+            toast.setText(content);
+        }
+        toast.show();
     }
 }
