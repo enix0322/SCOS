@@ -62,7 +62,6 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         linearLayout.setDividerDrawable(ContextCompat.getDrawable(this, R.drawable.layout_divider_vertical));
     }
 
-
     @Override
     public void event(Food f) {
         food.add(f);
