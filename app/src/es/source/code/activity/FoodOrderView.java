@@ -76,6 +76,7 @@ public class FoodOrderView extends AppCompatActivity implements FragmentOrderFoo
         tablayout.getTabAt(1).select();
     }
 
+    //删除订单列表中的指定的菜品
     public void event_cancel(Food food) {
         user.Delet_Not_Order_Food_List(food);
         FragmentManager fgManager = getSupportFragmentManager();

@@ -77,11 +77,13 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
     @Override
     public void onClick(View view, boolean cancel) {
         if(cancel == false) {
+            Food_data.get((Integer) view.getTag()).set_food_order(true);
             Food food = Food_data.get((Integer) view.getTag());
             food.set_food_order(true);
             callback.event(food);
         }
-        if(cancel == true) {
+        else if(cancel == true) {
+            Food_data.get((Integer) view.getTag()).set_food_order(false);
             Food food = Food_data.get((Integer) view.getTag());
             food.set_food_order(false);
             callback.event(food);

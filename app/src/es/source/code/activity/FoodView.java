@@ -64,7 +64,12 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
 
     @Override
     public void event(Food f) {
-        food.add(f);
+        if(f.get_food_order() == true) {
+            food.add(f);
+        }
+        else if(f.get_food_order() == false) {
+            food.remove(f);
+        }
     }
 
     class MyPagerAdapter extends FragmentPagerAdapter {

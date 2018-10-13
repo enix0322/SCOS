@@ -78,12 +78,12 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
 
     @Override
     public void onClick(View view) {
-        if(mViewHolder.food_order.getText().equals("点菜")) {
+        if(mData.get((Integer) view.getTag()).get_food_order() == false) {
             mViewHolder.food_order.setText("退点");
             mCallBack.onClick(view,false);
             showToast(mContext,"点菜成功");
         }
-        else if(mViewHolder.food_order.getText().equals("退点")) {
+        else if(mData.get((Integer) view.getTag()).get_food_order() == true) {
             mViewHolder.food_order.setText("点菜");
             mCallBack.onClick(view,true);
             showToast(mContext,"退点成功");

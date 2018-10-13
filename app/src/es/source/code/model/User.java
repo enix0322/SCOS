@@ -101,7 +101,7 @@ public class User implements Serializable {
             Food f= it.next();
             if(f.get_food_name().equals(food.get_food_name())){
                 if(f.get_food_num()>1){
-                    f.set_food_num(f.get_food_num());
+                    f.set_food_num(f.get_food_num()-1);
                 }
                 else {
                     it.remove();
