@@ -24,6 +24,7 @@ import es.source.code.model.User;
 public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
     private View view;
     private List<Food> Food_data = null;
+    private List<Food> order_food;
     Context mContext;
     Food_Adapter food_adapter;
     private ListView list_food;
@@ -51,14 +52,20 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
         list_food.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if(order_food != null){
+                    user.Add_Not_Order_Food_List(order_food);
+                    order_food.clear();
+                }
                 Food food = Food_data.get(i);
                 Intent intent = new Intent();
                 intent.setClass(getActivity().getApplicationContext(), FoodDetailed.class);
                 intent.putExtra("String", "FoodView");
                 intent.putExtra("int", position);
+                intent.putExtra("position", i);
                 intent.putExtra("Food", food);
                 intent.putExtra("User", user);
                 intent.putExtra("FoodList", (Serializable)Food_data);
+
                 startActivity(intent);
             }
         });
@@ -94,5 +101,9 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
 
     public void set_position(int position){
         this.position = position;
+    }
+
+    public void set_ordered_food(List<Food> order_food){
+        this.order_food = order_food;
     }
 }

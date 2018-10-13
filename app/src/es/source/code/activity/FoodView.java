@@ -15,7 +15,9 @@ import android.widget.LinearLayout;
 
 import com.future.scos.R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,9 +30,8 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
     private TabLayout tablayout;
     private ViewPager viewPager;
     private List<String> list;
-    private int f_pos;
+    private int f_pos = 0;
     List<Food> order_food = new LinkedList<>();
-    List<Food> Food_data;
     List<Food> Food_data_cold;
     List<Food> Food_data_hot;
     List<Food> Food_data_sea;
@@ -49,7 +50,6 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         viewPager = findViewById(R.id.viewpager);
 
         user = (User)getIntent().getSerializableExtra("User");
-        Food_data  = (List<Food>)getIntent().getSerializableExtra("FoodList");
         f_pos = getIntent().getIntExtra("int", 0);
 
         list = new ArrayList<>();
@@ -59,33 +59,13 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         list.add(titles[3]);
 
         set_data();
-        if(Food_data != null) {
-            switch (f_pos){
-                case 0:
-                    Food_data_cold.clear();
-                    Food_data_cold.addAll(Food_data);
-                    break;
-                case 1:
-                    Food_data_hot.clear();
-                    Food_data_hot.addAll(Food_data);
-                    break;
-                case 2:
-                    Food_data_sea.clear();
-                    Food_data_sea.addAll(Food_data);
-                    break;
-                case 3:
-                    Food_data_drink.clear();
-                    Food_data_drink.addAll(Food_data);
-                    break;
-            }
-        }
-
         FragmentFood.setCallBack(this);
 
         MyPagerAdapter myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
         viewPager.setAdapter(myPagerAdapter);
         tablayout.setupWithViewPager(viewPager,true);
+        tablayout.getTabAt(f_pos).select();
         //每条之间的分割线
         LinearLayout linearLayout = (LinearLayout) tablayout.getChildAt(0);
         linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
@@ -112,25 +92,19 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         }
         @Override
         public Fragment getItem(int position) {
-            Food_data = new LinkedList<>();
             fragmentfood = new FragmentFood();
             if (list.get(position).equals(titles[0])){
-                fragmentfood.set_user(user);
                 fragmentfood.addFood(Food_data_cold);
-                fragmentfood.set_position(position);
             }else if (list.get(position).equals(titles[1])){
-                fragmentfood.set_user(user);
                 fragmentfood.addFood(Food_data_hot);
-                fragmentfood.set_position(position);
             }else if (list.get(position).equals(titles[2])){
-                fragmentfood.set_user(user);
                 fragmentfood.addFood(Food_data_sea);
-                fragmentfood.set_position(position);
             }else if (list.get(position).equals(titles[3])){
-                fragmentfood.set_user(user);
                 fragmentfood.addFood(Food_data_drink);
-                fragmentfood.set_position(position);
             }
+            fragmentfood.set_user(user);
+            fragmentfood.set_position(position);
+            fragmentfood.set_ordered_food(order_food);
             return fragmentfood;
         }
         @Override
@@ -153,6 +127,7 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
             case R.id.ordered:
                 if(order_food != null){
                     user.Add_Not_Order_Food_List(order_food);
+                    order_food.clear();
                 }
                 intent.setClass(FoodView.this, FoodOrderView.class);
                 intent.putExtra("String", "FromFoodView");
@@ -163,6 +138,7 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
             case R.id.order_list:
                 if(order_food != null){
                     user.Add_Not_Order_Food_List(order_food);
+                    order_food.clear();
                 }
                 intent.setClass(FoodView.this, FoodOrderView.class);
                 intent.putExtra("String", "FromFoodView");
@@ -180,6 +156,7 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         super.onBackPressed();
         if(order_food != null){
             user.Add_Not_Order_Food_List(order_food);
+            order_food.clear();
         }
         Intent intent = new Intent();
         intent.setClass(FoodView.this, MainScreen.class);
@@ -294,6 +271,58 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         Food_data_drink.add(new Food("毛樱桃汁", 10));
         Food_data_drink.add(new Food("棉花糖巧克力热饮", 10));
         Food_data_drink.add(new Food("红豆莲藕糊", 10));
+
+        Iterator<Food> it_user = user.Get_Not_Order_Food_List().iterator();
+        Iterator<Food> it_data = Food_data_cold.iterator();
+        while(it_data.hasNext()){
+            Food f= it_data.next();
+            while(it_user.hasNext()){
+                Food fd= it_user.next();
+                if(f.get_food_name().equals(fd.get_food_name())){
+                    f.set_food_order(true);
+                }
+            }
+            it_user = user.Get_Not_Order_Food_List().iterator();
+        }
+
+        it_user = user.Get_Not_Order_Food_List().iterator();
+        it_data = Food_data_hot.iterator();
+        while(it_data.hasNext()){
+            Food f= it_data.next();
+            while(it_user.hasNext()){
+                Food fd= it_user.next();
+                if(f.get_food_name().equals(fd.get_food_name())){
+                    f.set_food_order(true);
+                }
+            }
+            it_user = user.Get_Not_Order_Food_List().iterator();
+        }
+
+        it_user = user.Get_Not_Order_Food_List().iterator();
+        it_data = Food_data_sea.iterator();
+        while(it_data.hasNext()){
+            Food f= it_data.next();
+            while(it_user.hasNext()){
+                Food fd= it_user.next();
+                if(f.get_food_name().equals(fd.get_food_name())){
+                    f.set_food_order(true);
+                }
+            }
+            it_user = user.Get_Not_Order_Food_List().iterator();
+        }
+
+        it_user = user.Get_Not_Order_Food_List().iterator();
+        it_data = Food_data_drink.iterator();
+        while(it_data.hasNext()){
+            Food f= it_data.next();
+            while(it_user.hasNext()){
+                Food fd= it_user.next();
+                if(f.get_food_name().equals(fd.get_food_name())){
+                    f.set_food_order(true);
+                }
+            }
+            it_user = user.Get_Not_Order_Food_List().iterator();
+        }
     }
 }
 

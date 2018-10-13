@@ -51,6 +51,7 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
         f_pos = intent.getIntExtra("int", 0);
         position = intent.getIntExtra("position", 0);
         Food_data  = (List<Food>)intent.getSerializableExtra("FoodList");
+
         user = (User)getIntent().getSerializableExtra("User");
 
         food_name.setText(food.get_food_name());
@@ -155,26 +156,24 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
             Food_Button_Order.setText("点菜");
             Food_data.get(position).set_food_order(false);
             food_temp.remove(food);
+            user.Delet_Not_Order_Food_List(food);
         }
         else if(food.get_food_order() == false) {
             Food_Button_Order.setText("退点");
             Food_data.get(position).set_food_order(true);
             food_temp.add(food);
+            user.Add_Not_Order_Food_List(food_temp);
         }
     }
 
     public void onBackPressed() {
         super.onBackPressed();
-        if(food_temp != null && user != null) {
-            user.Add_Not_Order_Food_List(food_temp);
-        }
         if(str.equals("FoodView")) {
             Intent intent = new Intent();
             intent.setClass(FoodDetailed.this, FoodView.class);
             intent.putExtra("String", "FoodView");
             intent.putExtra("User", user);
             intent.putExtra("int", f_pos);
-            intent.putExtra("FoodList", (Serializable)Food_data);
             startActivity(intent);
         }
         if(str.equals("FoodOrderView")) {
