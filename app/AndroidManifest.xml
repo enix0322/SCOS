@@ -32,8 +32,7 @@
             android:permission="scos.permission.ACCESSSCOS">
             <intent-filter>
                 <action android:name="com.future.scos.Mainscreen" />
-
-                <category android:name="com.future.scos.call" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <activity
