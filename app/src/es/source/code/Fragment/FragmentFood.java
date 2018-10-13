@@ -22,11 +22,12 @@ import es.source.code.model.Food;
 import es.source.code.model.User;
 
 public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
-    private View  view;
+    private View view;
     private List<Food> Food_data = null;
     Context mContext;
     Food_Adapter food_adapter;
     private ListView list_food;
+    private int position;
     private static CallBack callback;
     User user;
 
@@ -54,6 +55,7 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
                 Intent intent = new Intent();
                 intent.setClass(getActivity().getApplicationContext(), FoodDetailed.class);
                 intent.putExtra("String", "FoodView");
+                intent.putExtra("int", position);
                 intent.putExtra("Food", food);
                 intent.putExtra("User", user);
                 intent.putExtra("FoodList", (Serializable)Food_data);
@@ -88,5 +90,9 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
             food.set_food_order(false);
             callback.event(food);
         }
+    }
+
+    public void set_position(int position){
+        this.position = position;
     }
 }

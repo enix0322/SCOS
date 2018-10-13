@@ -84,7 +84,7 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
         list_food.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if(fragment_type.equals("not_ordered")) {
+                /*if(fragment_type.equals("not_ordered")) {
                     Food food = Food_Not_Order_data.get(i);
                     Intent intent = new Intent();
                     intent.setClass(getActivity().getApplicationContext(), FoodDetailed.class);
@@ -94,7 +94,7 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
                     intent.putExtra("position", i);
                     intent.putExtra("FoodList", (Serializable) Food_Not_Order_data);
                     startActivity(intent);
-                }
+                }*/
             }
         });
         return view;

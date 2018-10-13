@@ -95,8 +95,7 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
         TextView food_name;
         TextView food_price;
         Button food_order;
-        public ViewHolder(View convertView)
-        {
+        public ViewHolder(View convertView) {
             food_name = convertView.findViewById(R.id.food_name);
             food_price = convertView.findViewById(R.id.food_price);
             food_order = convertView.findViewById(R.id.food_order);

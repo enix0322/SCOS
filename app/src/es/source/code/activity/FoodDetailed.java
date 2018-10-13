@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.future.scos.R;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
     private List<Food> food_temp = new LinkedList<>();
     private String str;
     private int position;
+    private int f_pos;
     User user;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,7 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
         Bundle bundle = intent.getExtras();
         str = bundle.getString("String");
         food = (Food)intent.getSerializableExtra("Food");
+        f_pos = intent.getIntExtra("int", 0);
         position = intent.getIntExtra("position", 0);
         Food_data  = (List<Food>)intent.getSerializableExtra("FoodList");
         user = (User)getIntent().getSerializableExtra("User");
@@ -53,11 +56,11 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
         food_name.setText(food.get_food_name());
         food_price.setText(food.get_food_price()+"元");
         food_remark.setText(food.get_food_remark());
-        if(str.equals("FoodView")){
+        if(!food.get_food_order()){
             Food_Button_Order.setText("点菜");
         }
 
-        if(str.equals("FoodOrderView")){
+        if(food.get_food_order()){
             Food_Button_Order.setText("退点");
         }
 
@@ -148,7 +151,16 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        food_temp.add(food);
+        if(food.get_food_order() == true) {
+            Food_Button_Order.setText("点菜");
+            Food_data.get(position).set_food_order(false);
+            food_temp.remove(food);
+        }
+        else if(food.get_food_order() == false) {
+            Food_Button_Order.setText("退点");
+            Food_data.get(position).set_food_order(true);
+            food_temp.add(food);
+        }
     }
 
     public void onBackPressed() {
@@ -161,6 +173,8 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
             intent.setClass(FoodDetailed.this, FoodView.class);
             intent.putExtra("String", "FoodView");
             intent.putExtra("User", user);
+            intent.putExtra("int", f_pos);
+            intent.putExtra("FoodList", (Serializable)Food_data);
             startActivity(intent);
         }
         if(str.equals("FoodOrderView")) {
@@ -170,6 +184,5 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
             intent.putExtra("User", user);
             startActivity(intent);
         }
-
     }
 }
