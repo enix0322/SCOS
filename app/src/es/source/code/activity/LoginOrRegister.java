@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.future.scos.R;
@@ -81,6 +83,10 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
                     showProgress(false);
                     attempt_In(true);
                     break;
+                case 2:
+                    showProgress(false);
+                    attempt_In(false);
+                    break;
             }
         }
     };
@@ -90,8 +96,14 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_or_registerjava);
         // Set up the login form.
-        mUsernameView = (AutoCompleteTextView) findViewById(R.id.Username);
+        //获取用户保存在本地的数据
+        SharedPreferences sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
+        //getString()第二个参数为缺省值，如果preference中不存在该key，将返回缺省值
+        String userName = sharedPreferences.getString("userName", "");
+        int loginState = sharedPreferences.getInt("loginState", 0);
 
+
+        mUsernameView = (AutoCompleteTextView) findViewById(R.id.Username);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -106,13 +118,25 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
             }
         });
 
+
         Button mUsernameLoginButton =  findViewById(R.id.Username_login_button);
         Button mUsernameSign_inButton = findViewById(R.id.Username_sign_in_button);
         Button mBack_Button = findViewById(R.id.back_button);
+
+        if(userName.equals("")) {
+            mUsernameSign_inButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 0));
+            mUsernameLoginButton.setVisibility(View.INVISIBLE);
+        }else{
+            mUsernameView.setText(userName);
+            mUsernameLoginButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 0));
+            mUsernameSign_inButton.setVisibility(View.INVISIBLE);
+        }
+
         mUsernameLoginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 showProgress(true);
                 new Thread(new Runnable() {
                     @Override
@@ -129,16 +153,34 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
             }
         });
 
+
         mUsernameSign_inButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attempt_In(false);
+                showProgress(true);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        SystemClock.sleep(2000);
+
+                        Message message=new Message();
+                        message.what=2;
+                        message.obj="progressbar_delay";
+                        mHandler.sendMessage(message);
+                    }
+                }).start();
             }
         });
 
         mBack_Button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                SharedPreferences sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt("loginState",0);
+
                 Intent intent = new Intent();
                 intent.setClass(LoginOrRegister.this, MainScreen.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -253,6 +295,13 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
             Intent intent = new Intent();
             intent.setClass(LoginOrRegister.this, MainScreen.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //保存数据到本地
+            SharedPreferences sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("userName", loginUser.Getter_userName());
+            editor.putInt("loginState", 1);
+            editor.commit();
+
             if(OldUser == true){
                 intent.putExtra("String", "LoginSuccess");
             }

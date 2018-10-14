@@ -168,6 +168,7 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
         if(str.equals("FoodView")) {
             Intent intent = new Intent();
             intent.setClass(FoodDetailed.this, FoodView.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("String", "FoodView");
             intent.putExtra("User", user);
             intent.putExtra("int", f_pos);
@@ -176,6 +177,7 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
         if(str.equals("FoodOrderView")) {
             Intent intent = new Intent();
             intent.setClass(FoodDetailed.this, FoodOrderView.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("String", "FromFoodView");
             intent.putExtra("User", user);
             startActivity(intent);

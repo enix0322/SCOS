@@ -200,7 +200,7 @@ public class MainScreen extends Activity {
         }
         switch (strContentString) {
             case "FromEntry":
-                initData();
+                initData_hide();
                 break;
             case "LoginSuccess":
                 initData();
@@ -222,12 +222,20 @@ public class MainScreen extends Activity {
                 user = (User)getIntent().getSerializableExtra("User");
                 break;
             case "Return":
-                initData();
+                initData_hide();
                 break;
             default:
                 initData_hide();
                 break;
         }
 
+    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(intent);
     }
 }

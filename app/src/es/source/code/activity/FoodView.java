@@ -146,6 +146,7 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         super.onBackPressed();
         Intent intent = new Intent();
         intent.setClass(FoodView.this, MainScreen.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("String", "FromFoodView");
         intent.putExtra("User", user);
         startActivity(intent);

@@ -121,6 +121,7 @@ public class FoodOrderView extends AppCompatActivity implements FragmentOrderFoo
         super.onBackPressed();
         Intent intent = new Intent();
         intent.setClass(FoodOrderView.this, MainScreen.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("String", "FromFoodOrderView");
         intent.putExtra("User", user);
         startActivity(intent);

@@ -8,6 +8,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@color/colorPrimaryDark"
     tools:context="es.source.code.activity.LoginOrRegister">
 
     <!-- Login progress -->
@@ -16,6 +17,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark"
         android:layout_gravity="center"
         android:visibility="gone" />
 
@@ -35,6 +37,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_username"
+                android:textColorHint="@color/transparent"
+                android:textColor="@color/colorWhite"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:singleLine="true" />
@@ -44,6 +48,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_password"
+                android:textColorHint="@color/transparent"
+                android:textColor="@color/colorWhite"
                 android:imeActionId="6"
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeOptions="actionUnspecified"
@@ -55,6 +61,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
                 <Button
@@ -62,7 +69,8 @@
                     style="?android:textAppearanceSmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:background="@color/gray"
+                    android:textColor="@color/colorWhite"
                     android:layout_weight="1"
                     android:text="@string/action_sign_in"
                     android:textStyle="bold" />
@@ -70,10 +78,11 @@
                 <Button
                     android:id="@+id/Username_login_button"
                     style="?android:textAppearanceSmall"
-                    android:layout_weight="1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:background="@color/gray"
+                    android:textColor="@color/colorWhite"
+                    android:layout_weight="1"
                     android:text="@string/action_login"
                     android:textStyle="bold" />
 
@@ -84,9 +93,11 @@
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/gray"
+                android:textColor="@color/colorWhite"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_back"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
         </LinearLayout>
     </ScrollView>
