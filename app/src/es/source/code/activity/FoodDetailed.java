@@ -28,7 +28,6 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
     private GestureDetector mDetector;
     private Food food;
     private List<Food> Food_data = null;
-    private List<Food> food_temp = new LinkedList<>();
     private String str;
     private int position;
     private int f_pos;
@@ -152,17 +151,15 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if(food.get_food_order() == true) {
+        if(Food_data.get(position).get_food_order() == true) {
             Food_Button_Order.setText("点菜");
             Food_data.get(position).set_food_order(false);
-            food_temp.remove(food);
             user.Delet_Not_Order_Food_List(food);
         }
-        else if(food.get_food_order() == false) {
+        else if(Food_data.get(position).get_food_order() == false) {
             Food_Button_Order.setText("退点");
             Food_data.get(position).set_food_order(true);
-            food_temp.add(food);
-            user.Add_Not_Order_Food_List(food_temp);
+            user.Add_Not_Order_Food(food);
         }
     }
 

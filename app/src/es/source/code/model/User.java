@@ -70,6 +70,9 @@ public class User implements Serializable {
         }
     }
 
+    public void Add_Not_Order_Food(Food food){
+        Not_Order_Food.add(food);
+    }
     public void Add_Order_Food_List(List<Food> food){
         if(food.size() !=0) {
             this.Order_Food.addAll(food);

@@ -31,7 +31,6 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
     private ViewPager viewPager;
     private List<String> list;
     private int f_pos = 0;
-    List<Food> order_food = new LinkedList<>();
     List<Food> Food_data_cold;
     List<Food> Food_data_hot;
     List<Food> Food_data_sea;
@@ -75,10 +74,10 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
     @Override
     public void event(Food f) {
         if(f.get_food_order() == true) {
-            order_food.add(f);
+            user.Add_Not_Order_Food(f);
         }
         else if(f.get_food_order() == false) {
-            order_food.remove(f);
+            user.Delet_Not_Order_Food_List(f);
         }
     }
 
@@ -104,7 +103,6 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
             }
             fragmentfood.set_user(user);
             fragmentfood.set_position(position);
-            fragmentfood.set_ordered_food(order_food);
             return fragmentfood;
         }
         @Override
@@ -125,10 +123,6 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         Intent intent = new Intent();
         switch (item.getItemId()) {
             case R.id.ordered:
-                if(order_food != null){
-                    user.Add_Not_Order_Food_List(order_food);
-                    order_food.clear();
-                }
                 intent.setClass(FoodView.this, FoodOrderView.class);
                 intent.putExtra("String", "FromFoodView");
                 intent.putExtra("User", user);
@@ -136,10 +130,6 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
                 startActivity(intent);
                 break;
             case R.id.order_list:
-                if(order_food != null){
-                    user.Add_Not_Order_Food_List(order_food);
-                    order_food.clear();
-                }
                 intent.setClass(FoodView.this, FoodOrderView.class);
                 intent.putExtra("String", "FromFoodView");
                 intent.putExtra("User", user);
@@ -154,10 +144,6 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if(order_food != null){
-            user.Add_Not_Order_Food_List(order_food);
-            order_food.clear();
-        }
         Intent intent = new Intent();
         intent.setClass(FoodView.this, MainScreen.class);
         intent.putExtra("String", "FromFoodView");
