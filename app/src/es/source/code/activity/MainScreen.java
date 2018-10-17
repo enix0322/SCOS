@@ -124,6 +124,10 @@ public class MainScreen extends Activity {
                         startActivity(intent);
                         break;
                     case "系统帮助":
+                        intent.setClass(MainScreen.this, scosHelper.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra("String", "FromMainScreen");
+                        startActivity(intent);
                         break;
                 }
             }
@@ -200,18 +204,30 @@ public class MainScreen extends Activity {
         }
         switch (strContentString) {
             case "FromEntry":
-                initData_hide();
+                if(getIntent().getIntExtra("loginState", 0)==1) {
+                    initData();
+                }else{
+                    initData_hide();
+                }
                 break;
             case "LoginSuccess":
-                initData();
-                //获取登陆成功的返回值
-                user = (User)getIntent().getSerializableExtra("User");
+                if(getIntent().getIntExtra("loginState", 0)==1) {
+                    initData();
+                    //获取登陆成功的返回值
+                    user = (User) getIntent().getSerializableExtra("User");
+                }else{
+                    initData_hide();
+                }
                 break;
             case "RegisterSuccess":
-                initData();
-                //获取注册成功的返回值
-                user = (User)getIntent().getSerializableExtra("User");
-                Toast.makeText(MainScreen.this,"欢迎您成为 SCOS 新用户",Toast.LENGTH_SHORT).show();
+                if(getIntent().getIntExtra("loginState", 0)==1) {
+                    initData();
+                    //获取注册成功的返回值
+                    user = (User) getIntent().getSerializableExtra("User");
+                    Toast.makeText(MainScreen.this, "欢迎您成为 SCOS 新用户", Toast.LENGTH_SHORT).show();
+                }else{
+                    initData_hide();
+                }
                 break;
             case "FromFoodView":
                 initData();

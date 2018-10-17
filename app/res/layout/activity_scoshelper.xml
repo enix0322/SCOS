@@ -2,17 +2,17 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
-    tools:context="es.source.code.activity.MainScreen">
+    tools:context="es.source.code.activity.scosHelper">
+
 
     <GridView
-        android:id="@+id/gridview"
+        android:id="@+id/help_gridview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:columnWidth="60dp"
+        android:columnWidth="80dp"
         android:numColumns="1"
         android:stretchMode="columnWidth"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -32,16 +35,18 @@
             android:permission="scos.permission.ACCESSSCOS">
             <intent-filter>
                 <action android:name="com.future.scos.Mainscreen" />
-                <category android:name="android.intent.category.DEFAULT"/>
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name="es.source.code.activity.LoginOrRegister"
             android:exported="true"
             android:label="@string/title_activity_login_or_register" />
-        <activity android:name="es.source.code.activity.FoodView"></activity>
-        <activity android:name="es.source.code.activity.FoodOrderView"></activity>
-        <activity android:name="es.source.code.activity.FoodDetailed"></activity>
+        <activity android:name="es.source.code.activity.FoodView" />
+        <activity android:name="es.source.code.activity.FoodOrderView" />
+        <activity android:name="es.source.code.activity.FoodDetailed" />
+        <activity android:name="es.source.code.activity.scosHelper"></activity>
     </application>
 
 </manifest>

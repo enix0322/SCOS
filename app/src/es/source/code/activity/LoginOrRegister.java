@@ -185,6 +185,7 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
                 intent.setClass(LoginOrRegister.this, MainScreen.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("String", "Return");
+                intent.putExtra("loginState", 0);
                 startActivity(intent);
             }
         });
@@ -292,14 +293,16 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
             loginUser.Setter_userName(username);
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            Intent intent = new Intent();
-            intent.setClass(LoginOrRegister.this, MainScreen.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
             //保存数据到本地
             SharedPreferences sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("userName", loginUser.Getter_userName());
             editor.putInt("loginState", 1);
+
+            Intent intent = new Intent();
+            intent.setClass(LoginOrRegister.this, MainScreen.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             editor.commit();
 
             if(OldUser == true){
@@ -309,6 +312,7 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
                 intent.putExtra("String", "RegisterSuccess");
             }
             intent.putExtra("User", loginUser);
+            intent.putExtra("loginState", 1);
             startActivity(intent);
             //mAuthTask = new UserLoginTask(username, password);
             //mAuthTask.execute((Void) null);
