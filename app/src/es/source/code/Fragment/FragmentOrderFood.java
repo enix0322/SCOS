@@ -2,6 +2,7 @@ package es.source.code.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +39,7 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
 
     TextView food_total_num;
     TextView food_total_price;
+    private ProgressBar progressBar ;
     Button settle_accounts;
     private String fragment_type;
     private static CallBack callback;
@@ -52,6 +55,7 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_order_food, container, false);
+        progressBar = view.findViewById(R.id.progress);
         if (Food_Not_Order_data == null || Food_Order_data == null) {
             Food_Not_Order_data = new LinkedList<>();
             Food_Order_data = new LinkedList<>();
@@ -63,6 +67,11 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
 
         switch(fragment_type) {
             case "not_ordered":
+                if(user.Get_Not_Order_Food_List().size() == 0){
+                    settle_accounts.setEnabled(false);
+                }else{
+                    settle_accounts.setEnabled(true);
+                }
                 food_not_order_adapter = new Food_Not_Order_Adapter((LinkedList<Food>) Food_Not_Order_data, mContext,this);
                 list_food = view.findViewById(R.id.food_list_view);
                 list_food.setAdapter(food_not_order_adapter);
@@ -72,6 +81,11 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
                 break;
 
             case "ordered":
+                if(user.Get_Order_Food_List().size() == 0){
+                    settle_accounts.setEnabled(false);
+                }else{
+                    settle_accounts.setEnabled(true);
+                }
                 food_order_adapter = new Food_Order_Adapter((LinkedList<Food>) Food_Order_data, mContext);
                 list_food = view.findViewById(R.id.food_list_view);
                 list_food.setAdapter(food_order_adapter);
@@ -128,10 +142,7 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
                 callback.event(fragment_type);
                 break;
             case "ordered":
-                callback.event(fragment_type);
-                if (user.Getter_oldUser() == true) {
-                    Toast.makeText(getActivity(), "您好，老顾客，本次你可享受 7 折优惠", Toast.LENGTH_SHORT).show();
-                }
+                new MyAsyncTask().execute();
                 break;
         }
     }
@@ -168,5 +179,46 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
             total_num = total_num + food.get_food_num();
         }
         return total_num;
+    }
+
+    class MyAsyncTask extends AsyncTask<String, Void, Boolean> {
+
+        //onPreExecute用于异步处理前的操作
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //此处将progressBar设置为可见.
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setProgress(10);
+        }
+
+        //在doInBackground方法中进行异步任务的处理.
+        @Override
+        protected Boolean doInBackground(String... params) {
+            //获取传进来的参数
+            for(int i=0;i<10;i++) {
+                try {
+                    Thread.sleep(600);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                progressBar.setProgress(i*10+10);
+            }
+            return true;
+        }
+        //onPostExecute用于UI的更新.此方法的参数为doInBackground方法返回的值.
+        protected void onPostExecute(Boolean bool) {
+            //隐藏progressBar
+            if(bool) {
+                progressBar.setVisibility(View.INVISIBLE);
+                int price = CountPrice(user.Get_Order_Food_List());
+                if (user.Getter_oldUser() == true) {
+                    Toast.makeText(getActivity(), "您好，老顾客，本次你可享受 7 折优惠！价格"+ price*0.7 +"元"+"获得积分："+price+"分", Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(getActivity(), "您好，欢迎下次在来！订单价格："+ price +"元"+"获得积分："+price+"分", Toast.LENGTH_SHORT).show();
+                }
+                callback.event(fragment_type);
+            }
+        }
     }
 }
