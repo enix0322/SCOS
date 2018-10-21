@@ -140,8 +140,6 @@ public class scosHelper extends AppCompatActivity {
                                 mHandler.sendMessage(message);
                             }
                         }).start();
-
-
                         break;
                 }
             }

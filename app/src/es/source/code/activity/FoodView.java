@@ -1,7 +1,11 @@
 package es.source.code.activity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,9 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 
+import com.future.scos.IMyAidlInterface;
 import com.future.scos.R;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -40,8 +43,9 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
 
     //数据源
     private String[] titles = {"冷菜", "热菜", "海鲜", "酒水"};
-    @Override
 
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.food_view);
@@ -69,6 +73,11 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         LinearLayout linearLayout = (LinearLayout) tablayout.getChildAt(0);
         linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
         linearLayout.setDividerDrawable(ContextCompat.getDrawable(this, R.drawable.layout_divider_vertical));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

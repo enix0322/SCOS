@@ -1,14 +1,23 @@
 package es.source.code.activity;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.future.scos.IMyAidlInterface;
 import com.future.scos.R;
 
 import java.util.ArrayList;
@@ -17,72 +26,70 @@ import java.util.List;
 import java.util.Map;
 
 import es.source.code.model.User;
+import es.source.code.service.ServerObserverService;
 
 
 public class MainScreen extends Activity {
-
-    //private TextView mTextMessage;
-    //private BottomNavigationView navigation;
-    //private BottomNavigationView hide_navigation ;
     private GridView gridView;
     private List<Map<String, Object>> dataList;
     private SimpleAdapter adapter;
+    private IMyAidlInterface iMyAidlInterface;
+    private Intent intentService;
+    private Messenger mService;
+
     User user;
-    /*private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
+    @Override
+    protected void onStart() {
+        //打开服务
+        super.onStart();
+        bindRemoteService();
+    }
+
+    private Messenger mMessenger = new Messenger(new Handler()
+    {
         @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Intent intent = new Intent();
-            switch (item.getItemId()) {
-                case R.id.navigation_order:
-                    mTextMessage.setText(R.string.title_home);
-                    intent.setClass(MainScreen.this, FoodView.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("String", "FromMainScreen");
-                    startActivity(intent);
-                    return true;
-                case R.id.navigation_watch_order:
-                    mTextMessage.setText(R.string.title_dashboard);
-                    intent.setClass(MainScreen.this, FoodOrderView.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("String", "FromMainScreen");
-                    startActivity(intent);
-                    return true;
-                case R.id.navigation_log_or_sign_in:
-                    intent.setClass(MainScreen.this, LoginOrRegister.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("String", "FromMainScreen");
-                    startActivity(intent);
-                    return true;
-                case R.id.navigation_sys_help:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
+        public void handleMessage(Message msgFromServer)
+        {
+            switch (msgFromServer.what)
+            {
+                case 10:
+                    break;
             }
-            return false;
+            super.handleMessage(msgFromServer);
         }
-    }/
+    });
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnHideNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_log_or_sign_in:
-                    Intent intent = new Intent();
-                    intent.setClass(MainScreen.this, LoginOrRegister.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT );
-                    intent.putExtra("String", "FromMainScreen");
-                    startActivity(intent);
-                    return true;
-                case R.id.navigation_sys_help:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
+    private void bindRemoteService() {
+        Intent intentService = new Intent();
+        intentService.setAction ("com.future.scos.ServerObserverService");
+        intentService.setPackage("es.source.code.service");
+        ServiceConnection connection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                iMyAidlInterface = IMyAidlInterface.Stub.asInterface(iBinder);
+                try {
+                    mService = new Messenger(iMyAidlInterface.getMessage());
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                Message message = new Message();
+                message.what = 1;
+                message.replyTo = mMessenger;
+                try {
+                    mService.send(message);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
-            return false;
-        }
-    };*/
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                iMyAidlInterface = null;
+            }
+        };
+        bindService(intentService, connection, BIND_AUTO_CREATE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,15 +139,6 @@ public class MainScreen extends Activity {
                 }
             }
         });
-        //mTextMessage = (TextView) findViewById(R.id.message);
-
-        //navigation = findViewById(R.id.navigation);
-        //hide_navigation = findViewById(R.id.hide_navigation);
-
-        //navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        //hide_navigation.setOnNavigationItemSelectedListener(mOnHideNavigationItemSelectedListener);
-
-        //change_navigation();
     }
 
     void initData() {
@@ -193,6 +191,7 @@ public class MainScreen extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //stopService(intentService);
     }
 
     private void change_gridview() {

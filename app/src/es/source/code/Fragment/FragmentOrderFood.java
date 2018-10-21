@@ -196,13 +196,13 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
         @Override
         protected Boolean doInBackground(String... params) {
             //获取传进来的参数
-            for(int i=0;i<10;i++) {
+            for(int i=0;i<100;i++) {
                 try {
-                    Thread.sleep(600);
+                    Thread.sleep(60);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                progressBar.setProgress(i*10+10);
+                progressBar.setProgress(i);
             }
             return true;
         }
