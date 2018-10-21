@@ -70,6 +70,7 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         tablayout.setupWithViewPager(viewPager,true);
         tablayout.getTabAt(f_pos).select();
         //每条之间的分割线
+        
         LinearLayout linearLayout = (LinearLayout) tablayout.getChildAt(0);
         linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
         linearLayout.setDividerDrawable(ContextCompat.getDrawable(this, R.drawable.layout_divider_vertical));
