@@ -10,10 +10,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
-
-import com.future.scos.IMyAidlInterface;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -23,8 +23,8 @@ import es.source.code.model.Food;
 
 public class ServerObserverService extends Service {
     public Context activity_context;
-    int service_type;
-    //private MyBinder binder = new MyBinder();
+    //保存客户端的messenger
+    private Messenger messenger_client;
 
     public ServerObserverService() {
     }
@@ -33,50 +33,16 @@ public class ServerObserverService extends Service {
         super.onCreate();
         activity_context = getApplicationContext();
         Log.i("server", "远程server");
-
     }
-
-    /*public class MyBinder extends Binder
-    {
-        public void Set_Context(Context context){
-            activity_context = context;
-        }
-
-        public ServerObserverService getService() {
-            return ServerObserverService.this;
-        }
-    }*/
-
-    IMyAidlInterface.Stub stub  = new IMyAidlInterface.Stub() {
-        @Override
-        public IBinder getMessage() throws RemoteException {
-            System.out.println("客户端通过AIDL与远程后台成功通信");
-            return mMessenger.getBinder();
-        }
-    };
 
     @Override
     public IBinder onBind(Intent intent) {
-        return stub;
+        return mMessenger.getBinder();
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        System.out.println("执行了onStartCommand()");
         return super.onStartCommand(intent, flags, startId);
     }
-
-    public boolean onUnbind(Intent intent) {
-        return true;
-    }
-
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    public void onRebind(Intent intent) {
-        super.onRebind(intent);
-    }
-
 
 
     public static boolean isAppOnForeground(Context context)
@@ -95,46 +61,54 @@ public class ServerObserverService extends Service {
         return false;
     }
 
-    //处理接收到的消息
-    private Messenger mMessenger = new Messenger(new Handler(){
+    //处理客户消息与线程消息
+    private Handler mHandler = new Handler(){
         @Override
-        public void handleMessage(final Message msgfromClient) {
-            final Message msgToClient = Message.obtain(msgfromClient);//返回给客户端的消息
-            switch (msgfromClient.what) {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
                 //msg 客户端传来的消息
                 case 1:
-                    msgToClient.what = 10;
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            msgToClient.what = 10;
+                            Message message=new Message();
                             try {
                                 Thread.sleep(300);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            if (isAppOnForeground(activity_context)) {
-                                Bundle bundle = new Bundle();
-                                bundle.putSerializable("cold_food", (Serializable)Get_Food("cold"));
-                                bundle.putSerializable("hor_food", (Serializable)Get_Food("hot"));
-                                bundle.putSerializable("sea_food", (Serializable)Get_Food("sea"));
-                                bundle.putSerializable("drink_food", (Serializable)Get_Food("drink"));
-                                msgToClient.setData(bundle);
-                                try {
-                                    msgfromClient.replyTo.send(msgToClient);
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                }
-                            } else if (!isAppOnForeground(activity_context)) {
-                                stopSelf();
-                            }
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("cold_food", (Serializable)Get_Food("cold"));
+                            bundle.putSerializable("hot_food", (Serializable)Get_Food("hot"));
+                            bundle.putSerializable("sea_food", (Serializable)Get_Food("sea"));
+                            bundle.putSerializable("drink_food", (Serializable)Get_Food("drink"));
+                            message.setData(bundle);
+                            message.what=2;
+                            mHandler.sendMessage(message);
                         }
                     }).start();
+                    messenger_client = msg.replyTo;
+                    Toast.makeText(ServerObserverService.this.getApplicationContext(), "Hello World Remote Service!",Toast.LENGTH_SHORT).show();
+                    break;
+
+                case 2:
+                    Message message = Message.obtain();
+                    message.replyTo = messenger_client;
+                    message.setData(msg.getData());
+                    message.what=10;
+                    try {
+                        message.replyTo.send(message);
+                    } catch (RemoteException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     break;
             }
-            super.handleMessage(msgfromClient);
+            super.handleMessage(msg);
         }
-    });
+    };
+
+    private Messenger mMessenger = new Messenger(mHandler);
 
     private List<Food> Get_Food(String food_type){
         List<Food> Food_data_cold;

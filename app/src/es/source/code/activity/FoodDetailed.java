@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.future.scos.R;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,6 +29,12 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
     private GestureDetector mDetector;
     private Food food;
     private List<Food> Food_data = null;
+
+    List<Food> Food_data_cold;
+    List<Food> Food_data_hot;
+    List<Food> Food_data_sea;
+    List<Food> Food_data_drink;
+
     private String str;
     private int position;
     private int f_pos;
@@ -50,6 +57,15 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
         f_pos = intent.getIntExtra("int", 0);
         position = intent.getIntExtra("position", 0);
         Food_data  = (List<Food>)intent.getSerializableExtra("FoodList");
+
+        Food_data_cold  = new LinkedList((ArrayList<Food>)getIntent().getSerializableExtra("cold_food"));
+
+        Food_data_hot = new LinkedList((ArrayList<Food>)getIntent().getSerializableExtra("hot_food"));
+
+        Food_data_sea = new LinkedList((ArrayList<Food>)getIntent().getSerializableExtra("sea_food"));
+
+        Food_data_drink = new LinkedList((ArrayList<Food>)getIntent().getSerializableExtra("drink_food"));
+
 
         user = (User)getIntent().getSerializableExtra("User");
 
@@ -172,6 +188,11 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
             intent.putExtra("String", "FoodView");
             intent.putExtra("User", user);
             intent.putExtra("int", f_pos);
+            intent.putExtra("FoodList", (Serializable)Food_data);
+            intent.putExtra("cold_food", (Serializable)Food_data_cold);
+            intent.putExtra("hot_food", (Serializable)Food_data_hot);
+            intent.putExtra("sea_food", (Serializable)Food_data_sea);
+            intent.putExtra("drink_food", (Serializable)Food_data_drink);
             startActivity(intent);
         }
         if(str.equals("FoodOrderView")) {

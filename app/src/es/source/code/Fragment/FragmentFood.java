@@ -31,6 +31,11 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
     private static CallBack callback;
     User user;
 
+    List<Food> Food_data_cold;
+    List<Food> Food_data_hot;
+    List<Food> Food_data_sea;
+    List<Food> Food_data_drink;
+
     public interface CallBack{
         void event(Food f);
     }
@@ -60,6 +65,10 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
                 intent.putExtra("Food", food);
                 intent.putExtra("User", user);
                 intent.putExtra("FoodList", (Serializable)Food_data);
+                intent.putExtra("cold_food", (Serializable)Food_data_cold);
+                intent.putExtra("hot_food", (Serializable)Food_data_hot);
+                intent.putExtra("sea_food", (Serializable)Food_data_sea);
+                intent.putExtra("drink_food", (Serializable)Food_data_drink);
 
                 startActivity(intent);
             }
@@ -72,6 +81,13 @@ public class FragmentFood extends Fragment implements Food_Adapter.CallBack {
 
     public void addFood( List<Food> Food_data) {
         this.Food_data = Food_data;
+    }
+
+    public void set_Foodlist( List<Food> Food_data_cold,List<Food> Food_data_hot,List<Food> Food_data_sea,List<Food> Food_data_drink) {
+        this.Food_data_cold = Food_data_cold;
+        this.Food_data_hot = Food_data_hot;
+        this.Food_data_sea = Food_data_sea;
+        this.Food_data_drink = Food_data_drink;
     }
 
     public void set_user(User user){
