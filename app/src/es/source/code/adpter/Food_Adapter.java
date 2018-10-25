@@ -59,6 +59,7 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
             mViewHolder.food_name = convertView.findViewById(R.id.food_name);
             mViewHolder.food_price = convertView.findViewById(R.id.food_price);
             mViewHolder.food_order = convertView.findViewById(R.id.food_order);
+            mViewHolder.food_store_num = convertView.findViewById(R.id.food_store_num);
             convertView.setTag(mViewHolder);
         } else {
             mViewHolder = (ViewHolder) convertView.getTag();
@@ -68,6 +69,7 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
         mViewHolder.food_price.setTag(position);
         mViewHolder.food_name.setText(food_data.get_food_name());
         mViewHolder.food_price.setText(food_data.get_food_price()+"元");
+        mViewHolder.food_store_num.setText("库存"+food_data.get_food_store_num()+"份");
         if(food_data.get_food_order()==true) {
             mViewHolder.food_order.setText("退点");
         }
@@ -96,11 +98,13 @@ public class Food_Adapter extends BaseAdapter implements View.OnClickListener{
     public class ViewHolder {
         TextView food_name;
         TextView food_price;
+        TextView food_store_num;
         Button food_order;
         public ViewHolder(View convertView) {
             food_name = convertView.findViewById(R.id.food_name);
             food_price = convertView.findViewById(R.id.food_price);
             food_order = convertView.findViewById(R.id.food_order);
+            food_store_num = convertView.findViewById(R.id.food_store_num);
         }
     }
 

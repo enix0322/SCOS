@@ -6,6 +6,7 @@ public class Food implements Serializable {
     private String food_name;
     private int food_price;
     private int food_num;
+    private int food_store_num;
     private String food_remark;
     private boolean food_order;
 
@@ -15,6 +16,7 @@ public class Food implements Serializable {
         this.food_num = food_num;
         this.food_remark = food_remark;
         this.food_order = false;
+        this.food_store_num = 1;
     }
 
     public Food(String food_name, int food_price) {
@@ -23,6 +25,7 @@ public class Food implements Serializable {
         this.food_num = 1;
         this.food_remark = "";
         this.food_order = false;
+        this.food_store_num = 1;
     }
 
     public String get_food_name() {
@@ -38,6 +41,10 @@ public class Food implements Serializable {
 
     public int get_food_num() {
         return food_num;
+    }
+
+    public int get_food_store_num() {
+        return food_store_num;
     }
 
     public boolean get_food_order() {
@@ -64,6 +71,11 @@ public class Food implements Serializable {
     public void set_food_num(int food_num) {
 
         this.food_num = food_num;
+    }
+
+    public void set_food_store_num(int food_store_num) {
+
+        this.food_store_num = food_store_num;
     }
 
     public void set_food_remark(String food_remark) {

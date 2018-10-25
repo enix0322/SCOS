@@ -16,4 +16,14 @@
         android:showAsAction="never|withText"
         android:title="@string/action_call_server"
         tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/RT_service"
+        android:showAsAction="never|withText"
+        android:title="@string/action_RT_service"
+        tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/RT_service_close"
+        android:showAsAction="never|withText"
+        android:title="@string/action_RT_service_close"
+        tools:ignore="AppCompatResource" />
 </menu>

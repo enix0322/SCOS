@@ -12,6 +12,7 @@ public class User implements Serializable {
     private Boolean oldUser;
     private List<Food> Not_Order_Food;
     private List<Food> Order_Food;
+    private FoodList foodList;
 
     public User(){
         this.userName = "temp";
@@ -19,6 +20,7 @@ public class User implements Serializable {
         this.Not_Order_Food = new LinkedList<>();
         this.Order_Food = new LinkedList<>();
         this.oldUser = false;
+        this.foodList = new FoodList();
     }
 
     public User (String userName,String password) {
@@ -27,7 +29,17 @@ public class User implements Serializable {
         this.Not_Order_Food = new LinkedList<>();
         this.Order_Food = new LinkedList<>();
         this.oldUser = false;
+        this.foodList = new FoodList();
     }
+
+    public void setFoodList(FoodList foodList) {
+        this.foodList = foodList;
+    }
+
+    public FoodList getFoodList() {
+        return foodList;
+    }
+
     public String Getter_userName() {
         return userName;
     }

@@ -1,15 +1,19 @@
 package es.source.code.activity;
 
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +28,7 @@ import java.util.List;
 
 import es.source.code.Fragment.FragmentFood;
 import es.source.code.model.Food;
+import es.source.code.model.FoodList;
 import es.source.code.model.User;
 
 public class FoodView extends AppCompatActivity implements FragmentFood.CallBack{
@@ -32,16 +37,96 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
     private ViewPager viewPager;
     private List<String> list;
     private int f_pos = 0;
-    List<Food> Food_data_cold;
-    List<Food> Food_data_hot;
-    List<Food> Food_data_sea;
-    List<Food> Food_data_drink;
-    FragmentFood fragmentfood;
+    private boolean start_service;
+
+    List<Food> Food_data_cold = new LinkedList();
+    List<Food> Food_data_hot = new LinkedList();
+    List<Food> Food_data_sea = new LinkedList();
+    List<Food> Food_data_drink = new LinkedList();
+
+    private Intent intentService;
+    private IBinder binder;
+    private Messenger mServerMessenger;
+    ServiceConnection connection;
+
+    MyPagerAdapter myPagerAdapter;
+    private ArrayList<FragmentFood> fragments = new ArrayList<>();
     User user;
 
     //数据源
     private String[] titles = {"冷菜", "热菜", "海鲜", "酒水"};
 
+    private Handler mHandler =new Handler() {
+        @Override
+        public void handleMessage(Message msgFromServer)
+        {
+            switch (msgFromServer.what)
+            {
+                case 10:
+                    if(msgFromServer.getData().getSerializable("cold_food") != null) {
+                        Food_data_cold = new LinkedList((ArrayList<Food>) msgFromServer.getData().getSerializable("cold_food"));
+                    }
+                    if(msgFromServer.getData().getSerializable("hot_food") != null) {
+                        Food_data_hot = new LinkedList((ArrayList)msgFromServer.getData().getSerializable("hot_food"));
+                    }
+                    if(msgFromServer.getData().getSerializable("sea_food") != null) {
+                        Food_data_sea = new LinkedList((ArrayList) msgFromServer.getData().getSerializable("sea_food"));
+                    }
+                    if(msgFromServer.getData().getSerializable("drink_food") != null) {
+                        Food_data_drink = new LinkedList((ArrayList) msgFromServer.getData().getSerializable("drink_food"));
+                    }
+                    myPagerAdapter.remove();
+                    fragments.add(new FragmentFood());
+                    fragments.add(new FragmentFood());
+                    fragments.add(new FragmentFood());
+                    fragments.add(new FragmentFood());
+
+                    FoodList foodList = new FoodList();
+                    foodList.setFood_data_cold(Food_data_cold);
+                    foodList.setFood_data_hot(Food_data_hot);
+                    foodList.setFood_data_sea(Food_data_sea);
+                    foodList.setFood_data_drink(Food_data_drink);
+                    user.setFoodList(foodList);
+
+                    myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), fragments);
+                    viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
+                    viewPager.setAdapter(myPagerAdapter);
+                    tablayout.setupWithViewPager(viewPager,true);
+                    tablayout.getTabAt(f_pos).select();
+                    break;
+            }
+            super.handleMessage(msgFromServer);
+        }
+    };
+
+    private Messenger mMessenger = new Messenger(mHandler);
+
+    private void bindRemoteService() {
+        Intent intentService = new Intent();
+        intentService.setAction ("com.future.scos.ServerObserverService");
+        intentService.setPackage("com.future.scos");
+        connection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                //当连接service成功后发送what=1
+                mServerMessenger = new Messenger(iBinder);
+                Message msg = new Message();
+                msg.what = 1;
+                msg.replyTo = mMessenger;
+                try {
+                    mServerMessenger.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                binder = null;
+            }
+        };
+        bindService(intentService, connection, Service.BIND_AUTO_CREATE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +138,8 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         user = (User)getIntent().getSerializableExtra("User");
         f_pos = getIntent().getIntExtra("int", 0);
 
+        FragmentFood.setCallBack(this);
+
         list = new ArrayList<>();
         list.add(titles[0]);
         list.add(titles[1]);
@@ -60,9 +147,13 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         list.add(titles[3]);
 
         set_data();
-        FragmentFood.setCallBack(this);
 
-        MyPagerAdapter myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        fragments.add(new FragmentFood());
+        fragments.add(new FragmentFood());
+        fragments.add(new FragmentFood());
+        fragments.add(new FragmentFood());
+
+        myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), fragments);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
         viewPager.setAdapter(myPagerAdapter);
         tablayout.setupWithViewPager(viewPager,true);
@@ -77,6 +168,9 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(connection != null) {
+            unbindService(connection);
+        }
     }
 
     @Override
@@ -89,9 +183,13 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         }
     }
 
-    class MyPagerAdapter extends FragmentPagerAdapter {
-        public MyPagerAdapter(FragmentManager fm) {
+    class MyPagerAdapter extends FragmentStatePagerAdapter {
+        private FragmentManager fm;
+        ArrayList<FragmentFood> fragments;
+        public MyPagerAdapter(FragmentManager fm, ArrayList<FragmentFood> fragments) {
             super(fm);
+            this.fm = fm;
+            this.fragments = fragments;
         }
         @Override
         public CharSequence getPageTitle(int position) {
@@ -99,24 +197,32 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         }
         @Override
         public Fragment getItem(int position) {
-            fragmentfood = new FragmentFood();
             if (list.get(position).equals(titles[0])){
-                fragmentfood.addFood(Food_data_cold);
+                fragments.get(0).addFood(user.getFoodList().getFood_data_cold());
+                fragments.get(0).set_user(user);
+                fragments.get(0).set_position(position);
             }else if (list.get(position).equals(titles[1])){
-                fragmentfood.addFood(Food_data_hot);
+                fragments.get(1).addFood(user.getFoodList().getFood_data_hot());
+                fragments.get(1).set_user(user);
+                fragments.get(1).set_position(position);
             }else if (list.get(position).equals(titles[2])){
-                fragmentfood.addFood(Food_data_sea);
+                fragments.get(2).addFood(user.getFoodList().getFood_data_sea());
+                fragments.get(2).set_user(user);
+                fragments.get(2).set_position(position);
             }else if (list.get(position).equals(titles[3])){
-                fragmentfood.addFood(Food_data_drink);
+                fragments.get(3).addFood(user.getFoodList().getFood_data_drink());
+                fragments.get(3).set_user(user);
+                fragments.get(3).set_position(position);
             }
-            fragmentfood.set_user(user);
-            fragmentfood.set_position(position);
-            fragmentfood.set_Foodlist(Food_data_cold, Food_data_hot, Food_data_sea, Food_data_drink);
-            return fragmentfood;
+            return fragments.get(position);
         }
         @Override
         public int getCount() {
             return titles.length;
+        }
+
+        public void remove() {
+            fragments.clear();
         }
     }
 
@@ -125,6 +231,15 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         menu.findItem(R.id.ordered);
         menu.findItem(R.id.order_list);
         menu.findItem(R.id.call_server);
+
+        if (start_service) {
+            menu.findItem(R.id.RT_service).setVisible(false);
+            menu.findItem(R.id.RT_service_close).setVisible(true);
+        } else {
+            menu.findItem(R.id.RT_service).setVisible(true);
+            menu.findItem(R.id.RT_service_close).setVisible(false);
+        }
+
         return true;
     }
 
@@ -147,6 +262,36 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
                 break;
             case R.id.call_server:
                 break;
+
+            case R.id.RT_service:
+                start_service = true;
+                invalidateOptionsMenu();
+                if(mServerMessenger == null){
+                    bindRemoteService();
+                }else {
+                    Message msg = new Message();
+                    msg.what = 1;
+                    msg.replyTo = mMessenger;
+                    try {
+                        mServerMessenger.send(msg);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+
+            case R.id.RT_service_close:
+                start_service = false;
+                invalidateOptionsMenu();
+                Message msg = new Message();
+                msg.what = 0;
+                msg.replyTo = mMessenger;
+                try {
+                    mServerMessenger.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
         return true;
     }
@@ -162,13 +307,10 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
     }
 
     public void set_data(){
-        Food_data_cold  = new LinkedList((ArrayList<Food>)getIntent().getSerializableExtra("cold_food"));
-
-        Food_data_hot = new LinkedList((ArrayList<Food>)getIntent().getSerializableExtra("hot_food"));
-
-        Food_data_sea = new LinkedList((ArrayList<Food>)getIntent().getSerializableExtra("sea_food"));
-
-        Food_data_drink = new LinkedList((ArrayList<Food>)getIntent().getSerializableExtra("drink_food"));
+        Food_data_cold = user.getFoodList().getFood_data_cold();
+        Food_data_hot = user.getFoodList().getFood_data_hot();
+        Food_data_sea = user.getFoodList().getFood_data_sea();
+        Food_data_drink = user.getFoodList().getFood_data_drink();
 
         Iterator<Food> it_user = user.Get_Not_Order_Food_List().iterator();
         Iterator<Food> it_data = Food_data_cold.iterator();

@@ -20,6 +20,15 @@
         android:gravity="center"
         android:layout_weight="1" />
 
+    <TextView
+        android:id="@+id/food_store_num"
+        android:layout_height="60dp"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:textStyle = "bold"
+        android:textColor="@color/colorPrimary"
+        android:layout_weight="1" />
+
     <Button
         android:id="@+id/food_order"
         android:layout_width="match_parent"

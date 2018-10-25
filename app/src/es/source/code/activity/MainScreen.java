@@ -38,77 +38,7 @@ public class MainScreen extends Activity {
     private GridView gridView;
     private List<Map<String, Object>> dataList;
     private SimpleAdapter adapter;
-    private Intent intentService;
-    private IBinder binder;
-    private Messenger mServerMessenger;
-
-    ArrayList<Food> Food_data_cold;
-    ArrayList<Food> Food_data_hot;
-    ArrayList<Food> Food_data_sea;
-    ArrayList<Food> Food_data_drink;
-
     User user;
-
-    @Override
-    protected void onStart() {
-        //打开服务
-        super.onStart();
-        bindRemoteService();
-    }
-
-    private Handler mHandler =new Handler() {
-        @Override
-        public void handleMessage(Message msgFromServer)
-        {
-            switch (msgFromServer.what)
-            {
-                case 10:
-                    if(msgFromServer.getData().getSerializable("cold_food") != null) {
-                        Food_data_cold = (ArrayList<Food>) msgFromServer.getData().getSerializable("cold_food");
-                    }
-                    if(msgFromServer.getData().getSerializable("hot_food") != null) {
-                        Food_data_hot = (ArrayList)msgFromServer.getData().getSerializable("hot_food");
-                    }
-                    if(msgFromServer.getData().getSerializable("sea_food") != null) {
-                        Food_data_sea = (ArrayList) msgFromServer.getData().getSerializable("sea_food");
-                    }
-                    if(msgFromServer.getData().getSerializable("drink_food") != null) {
-                        Food_data_drink = (ArrayList) msgFromServer.getData().getSerializable("drink_food");
-                    }
-                    break;
-            }
-            super.handleMessage(msgFromServer);
-        }
-    };
-
-    private Messenger mMessenger = new Messenger(mHandler);
-
-    private void bindRemoteService() {
-        Intent intentService = new Intent();
-        intentService.setAction ("com.future.scos.ServerObserverService");
-        intentService.setPackage("com.future.scos");
-        ServiceConnection connection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                //当连接service成功后发送what=1
-                mServerMessenger = new Messenger(iBinder);
-                Message msg = new Message();
-                msg.what = 1;
-                msg.replyTo = mMessenger;
-                try {
-                    mServerMessenger.send(msg);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName componentName) {
-                binder = null;
-            }
-        };
-        bindService(intentService, connection, Service.BIND_AUTO_CREATE);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,11 +68,6 @@ public class MainScreen extends Activity {
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         intent.putExtra("String", "FromMainScreen");
                         intent.putExtra("User", user);
-                        intent.putExtra("cold_food", Food_data_cold);
-                        intent.putExtra("hot_food", Food_data_hot);
-                        intent.putExtra("sea_food", Food_data_sea);
-                        intent.putExtra("drink_food", Food_data_drink);
-
                         startActivity(intent);
                         break;
                     case "查看订单":

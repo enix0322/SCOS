@@ -22,16 +22,19 @@ import java.util.List;
 import es.source.code.model.Food;
 
 public class ServerObserverService extends Service {
-    public Context activity_context;
+    public Context app_context;
     //保存客户端的messenger
     private Messenger messenger_client;
+    private boolean new_list = true;
+    private boolean stop = false;
+    Thread mThread;
 
     public ServerObserverService() {
     }
 
     public void onCreate() {
         super.onCreate();
-        activity_context = getApplicationContext();
+        app_context = getApplicationContext();
         Log.i("server", "远程server");
     }
 
@@ -49,12 +52,12 @@ public class ServerObserverService extends Service {
     {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         String packageName = context.getPackageName();
-        List<ActivityManager.AppTask> appTask = activityManager.getAppTasks();
-        if (appTask == null)
+        List<ActivityManager.RunningAppProcessInfo> appProcess = activityManager.getRunningAppProcesses();
+        if (appProcess == null)
         {
             return false;
         }
-        if (appTask.get(0).getTaskInfo().toString().contains(packageName))
+        if (appProcess.get(0).processName.contains(packageName))
         {
             return true;
         }
@@ -67,40 +70,61 @@ public class ServerObserverService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 //msg 客户端传来的消息
+                case 0:
+                    //关闭线程
+                    if (mThread != null && mThread.isAlive()) {
+                        stop = true;
+                    }
+                    break;
                 case 1:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Message message=new Message();
-                            try {
-                                Thread.sleep(300);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                    stop = false;
+                    if(mThread == null) {
+                        mThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                while (!stop) {
+                                    //如果菜单列表为新则通知主界面更新
+                                    if (new_list) {
+                                        Message message = new Message();
+                                        Bundle bundle = new Bundle();
+                                        bundle.putSerializable("cold_food", (Serializable) Get_Food("cold"));
+                                        bundle.putSerializable("hot_food", (Serializable) Get_Food("hot"));
+                                        bundle.putSerializable("sea_food", (Serializable) Get_Food("sea"));
+                                        bundle.putSerializable("drink_food", (Serializable) Get_Food("drink"));
+                                        message.setData(bundle);
+                                        message.what = 2;
+                                        mHandler.sendMessage(message);
+                                        new_list = false;
+                                    }
+                                    try {
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Log.i("mThread", Thread.currentThread().getName() + "thread is alive");
+                                }
                             }
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable("cold_food", (Serializable)Get_Food("cold"));
-                            bundle.putSerializable("hot_food", (Serializable)Get_Food("hot"));
-                            bundle.putSerializable("sea_food", (Serializable)Get_Food("sea"));
-                            bundle.putSerializable("drink_food", (Serializable)Get_Food("drink"));
-                            message.setData(bundle);
-                            message.what=2;
-                            mHandler.sendMessage(message);
-                        }
-                    }).start();
+                        });
+                        mThread.start();
+                    }else {
+                        mThread.start();
+                    }
                     messenger_client = msg.replyTo;
-                    Toast.makeText(ServerObserverService.this.getApplicationContext(), "Hello World Remote Service!",Toast.LENGTH_SHORT).show();
                     break;
 
                 case 2:
-                    Message message = Message.obtain();
-                    message.replyTo = messenger_client;
-                    message.setData(msg.getData());
-                    message.what=10;
-                    try {
-                        message.replyTo.send(message);
-                    } catch (RemoteException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                    //判断主进程是否在运行
+                    if(isAppOnForeground(app_context)) {
+                        Message message = Message.obtain();
+                        message.replyTo = messenger_client;
+                        message.setData(msg.getData());
+                        message.what = 10;
+                        try {
+                            message.replyTo.send(message);
+                        } catch (RemoteException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                     }
                     break;
             }
