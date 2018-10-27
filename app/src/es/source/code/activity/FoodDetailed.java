@@ -30,11 +30,6 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
     private Food food;
     private List<Food> Food_data = null;
 
-    List<Food> Food_data_cold;
-    List<Food> Food_data_hot;
-    List<Food> Food_data_sea;
-    List<Food> Food_data_drink;
-
     private String str;
     private int position;
     private int f_pos;
@@ -53,12 +48,19 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         str = bundle.getString("String");
-        food = (Food)intent.getSerializableExtra("Food");
-        f_pos = intent.getIntExtra("int", 0);
-        position = intent.getIntExtra("position", 0);
-        Food_data  = (List<Food>)intent.getSerializableExtra("FoodList");
-        user = (User)getIntent().getSerializableExtra("User");
+        switch(str) {
+            case "FoodView":
+                food = (Food) intent.getSerializableExtra("Food");
+                f_pos = intent.getIntExtra("int", 0);
+                position = intent.getIntExtra("position", 0);
+                Food_data = (List<Food>) intent.getSerializableExtra("FoodList");
+                user = (User) getIntent().getSerializableExtra("User");
+                break;
 
+            case "UpdateService":
+                food = (Food) intent.getSerializableExtra("Food");
+                break;
+        }
         food_name.setText(food.get_food_name());
         food_price.setText(food.get_food_price()+"元");
         food_remark.setText(food.get_food_remark());
@@ -95,38 +97,42 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                 if (e1.getX() - e2.getX() > FLIP_DISTANCE) {
-                    Log.i("MYTAG", "向左滑...");
-                    if (position >= 0 && position < (Food_data.size()-1)) {
-                        position++;
-                        food = Food_data.get(position);
-                        food_name.setText(food.get_food_name());
-                        food_price.setText(food.get_food_price() + "元");
-                        food_remark.setText(food.get_food_remark());
+                    if (Food_data != null) {
+                        Log.i("MYTAG", "向左滑...");
+                        if (position >= 0 && position < (Food_data.size() - 1)) {
+                            position++;
+                            food = Food_data.get(position);
+                            food_name.setText(food.get_food_name());
+                            food_price.setText(food.get_food_price() + "元");
+                            food_remark.setText(food.get_food_remark());
 
-                        if (food.get_food_order()) {
-                            Food_Button_Order.setText("退点");
-                        } else {
-                            Food_Button_Order.setText("点菜");
+                            if (food.get_food_order()) {
+                                Food_Button_Order.setText("退点");
+                            } else {
+                                Food_Button_Order.setText("点菜");
+                            }
                         }
+                        return true;
                     }
-                    return true;
                 }
                 if (e2.getX() - e1.getX() > FLIP_DISTANCE) {
-                    Log.i("MYTAG", "向右滑...");
-                    if (position > 0 && position <= (Food_data.size()-1)) {
-                        position--;
-                        food = Food_data.get(position);
-                        food_name.setText(food.get_food_name());
-                        food_price.setText(food.get_food_price() + "元");
-                        food_remark.setText(food.get_food_remark());
+                    if (Food_data != null) {
+                        Log.i("MYTAG", "向右滑...");
+                        if (position > 0 && position <= (Food_data.size() - 1)) {
+                            position--;
+                            food = Food_data.get(position);
+                            food_name.setText(food.get_food_name());
+                            food_price.setText(food.get_food_price() + "元");
+                            food_remark.setText(food.get_food_remark());
 
-                        if (food.get_food_order()) {
-                            Food_Button_Order.setText("退点");
-                        } else {
-                            Food_Button_Order.setText("点菜");
+                            if (food.get_food_order()) {
+                                Food_Button_Order.setText("退点");
+                            } else {
+                                Food_Button_Order.setText("点菜");
+                            }
                         }
+                        return true;
                     }
-                    return true;
                 }
                 if (e1.getY() - e2.getY() > FLIP_DISTANCE) {
                     Log.i("MYTAG", "向上滑...");
@@ -157,15 +163,16 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if(Food_data.get(position).get_food_order() == true) {
-            Food_Button_Order.setText("点菜");
-            Food_data.get(position).set_food_order(false);
-            user.Delet_Not_Order_Food_List(food);
-        }
-        else if(Food_data.get(position).get_food_order() == false) {
-            Food_Button_Order.setText("退点");
-            Food_data.get(position).set_food_order(true);
-            user.Add_Not_Order_Food(food);
+        if(!str.equals("UpdateService")) {
+            if (Food_data.get(position).get_food_order() == true) {
+                Food_Button_Order.setText("点菜");
+                Food_data.get(position).set_food_order(false);
+                user.Delet_Not_Order_Food_List(food);
+            } else if (Food_data.get(position).get_food_order() == false) {
+                Food_Button_Order.setText("退点");
+                Food_data.get(position).set_food_order(true);
+                user.Add_Not_Order_Food(food);
+            }
         }
     }
 
@@ -186,6 +193,12 @@ public class FoodDetailed extends Activity implements View.OnClickListener {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("String", "FromFoodView");
             intent.putExtra("User", user);
+            startActivity(intent);
+        }
+        if(str.equals("UpdateService")){
+            Intent intent = new Intent();
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setClass(FoodDetailed.this, MainScreen.class);
             startActivity(intent);
         }
     }

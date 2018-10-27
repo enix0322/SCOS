@@ -4,22 +4,20 @@ import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
-
 import es.source.code.model.Food;
+
+import static java.lang.Thread.sleep;
 
 public class ServerObserverService extends Service {
     public Context app_context;
@@ -97,7 +95,7 @@ public class ServerObserverService extends Service {
                                         new_list = false;
                                     }
                                     try {
-                                        Thread.sleep(300);
+                                        sleep(300);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
@@ -125,6 +123,12 @@ public class ServerObserverService extends Service {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
+                        Food food = new Food("烤面筋", 1);
+                        Intent intent = new Intent();
+                        intent.setClass(ServerObserverService.this, UpdateService.class);
+                        intent.putExtra("String", "NewFood");
+                        intent.putExtra("Food", food);
+                        startService(intent);
                     }
                     break;
             }
