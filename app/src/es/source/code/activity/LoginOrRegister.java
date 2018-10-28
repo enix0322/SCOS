@@ -36,11 +36,16 @@ import android.widget.TextView;
 
 import com.future.scos.R;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import es.source.code.model.MessageEvent;
 import es.source.code.model.User;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -74,27 +79,25 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
     private View mProgressView;
     private View mLoginFormView;
 
-    private Handler mHandler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what){
-                case 1:
-                    showProgress(false);
-                    attempt_In(true);
-                    break;
-                case 2:
-                    showProgress(false);
-                    attempt_In(false);
-                    break;
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void Event(MessageEvent messageEvent) {
+        switch (messageEvent.getMessage()){
+            case "1":
+                showProgress(false);
+                attempt_In(true);
+                break;
+            case "2":
+                showProgress(false);
+                attempt_In(false);
+                break;
         }
-    };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_or_registerjava);
+        EventBus.getDefault().register(this);
         // Set up the login form.
         //获取用户保存在本地的数据
         SharedPreferences sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
@@ -143,11 +146,8 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
                     public void run() {
 
                         SystemClock.sleep(2000);
-
-                        Message message=new Message();
-                        message.what=1;
-                        message.obj="progressbar_delay";
-                        mHandler.sendMessage(message);
+                        MessageEvent messageEvent = new MessageEvent("1");
+                        EventBus.getDefault().post(messageEvent);
                     }
                 }).start();
             }
@@ -163,11 +163,8 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
                     public void run() {
 
                         SystemClock.sleep(2000);
-
-                        Message message=new Message();
-                        message.what=2;
-                        message.obj="progressbar_delay";
-                        mHandler.sendMessage(message);
+                        MessageEvent messageEvent = new MessageEvent("2");
+                        EventBus.getDefault().post(messageEvent);
                     }
                 }).start();
             }
@@ -468,6 +465,12 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+    }
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        if(EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
         }
     }
 }

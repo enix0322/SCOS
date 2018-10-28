@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
@@ -170,6 +171,7 @@ public class FoodView extends AppCompatActivity implements FragmentFood.CallBack
         super.onDestroy();
         if(connection != null) {
             unbindService(connection);
+            Log.i("FoodView", "解除远程service的绑定！");
         }
     }
 
