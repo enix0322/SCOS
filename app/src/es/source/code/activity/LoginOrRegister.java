@@ -16,12 +16,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
+
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,12 +32,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.future.scos.R;
+
+import net.sf.json.JSONObject;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,23 +82,65 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-
+    String baseUrl = "http://192.168.1.33:8080/web/LoginValidator";
+    //String baseUrl = "http://192.168.43.214:8080/web/LoginValidator";
     // UI references.
     private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    String username;
+    String password;
+    int log_type = 1;
+    boolean log_result;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void Event(MessageEvent messageEvent) {
         switch (messageEvent.getMessage()){
             case "1":
                 showProgress(false);
-                attempt_In(true);
+                log_result = true;
+                User loginUser = new User();
+                if(log_type == 1) {
+                    loginUser.Setter_oldUser(true);
+                }else {
+                    loginUser.Setter_oldUser(false);
+                }
+                loginUser.Setter_password(password);
+                loginUser.Setter_userName(username);
+                // Show a progress spinner, and kick off a background task to
+                // perform the user login attempt.
+
+                //保存数据到本地
+                SharedPreferences sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("userName", loginUser.Getter_userName());
+                editor.putInt("loginState", 1);
+
+                Intent intent = new Intent();
+                intent.setClass(LoginOrRegister.this, MainScreen.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                editor.commit();
+
+                if(log_type == 1){
+                    intent.putExtra("String", "LoginSuccess");
+                }
+                if(log_type == 2) {
+                    intent.putExtra("String", "RegisterSuccess");
+                }
+                intent.putExtra("User", loginUser);
+                intent.putExtra("loginState", 1);
+                startActivity(intent);
                 break;
             case "2":
                 showProgress(false);
-                attempt_In(false);
+                log_result = false;
+                break;
+
+            case "3":
+                showProgress(false);
+                log_result = false;
+                Toast.makeText(LoginOrRegister.this, "服务器连接超时！", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -140,16 +192,12 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
         mUsernameLoginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                showProgress(true);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        SystemClock.sleep(2000);
-                        MessageEvent messageEvent = new MessageEvent("1");
-                        EventBus.getDefault().post(messageEvent);
-                    }
-                }).start();
+                log_type = 1;
+                if(!attempt_In()) {
+                    showProgress(true);
+                    Thread loginThread = new Thread(new LoginThread());
+                    loginThread.start();
+                }
             }
         });
 
@@ -157,16 +205,12 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
         mUsernameSign_inButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                showProgress(true);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        SystemClock.sleep(2000);
-                        MessageEvent messageEvent = new MessageEvent("2");
-                        EventBus.getDefault().post(messageEvent);
-                    }
-                }).start();
+                log_type = 2;
+                if(!attempt_In()) {
+                    showProgress(true);
+                    Thread loginThread = new Thread(new LoginThread());
+                    loginThread.start();
+                }
             }
         });
 
@@ -236,9 +280,8 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
      * errors are presented and no actual login attempt is made.
      */
     //登陆或注册校验
-    private void attempt_In(Boolean OldUser) {
+    private boolean attempt_In() {
         if (mAuthTask != null) {
-            return;
         }
 
         // Reset errors.
@@ -246,8 +289,8 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mUsernameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        username = mUsernameView.getText().toString();
+        password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -283,38 +326,84 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
-            User loginUser = new User();
-            loginUser.Setter_oldUser(OldUser);
-            loginUser.Setter_password(password);
-            loginUser.Setter_userName(username);
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
+        }
+        return cancel;
+    }
 
-            //保存数据到本地
-            SharedPreferences sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("userName", loginUser.Getter_userName());
-            editor.putInt("loginState", 1);
+    private void sendJson() {
+        try {
+            //合成参数
+            JSONObject json = new JSONObject();
+            json.put("userName", username);
+            json.put("password", password);
+            System.out.println("==============" + json.toString());
+            // 新建一个URL对象
+            URL url = new URL(baseUrl);
+            // 打开一个HttpURLConnection连接
+            HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+            // 设置连接超时时间
+            urlConn.setConnectTimeout(5 * 1000);
+            //设置从主机读取数据超时
+            urlConn.setReadTimeout(5 * 1000);
+            // Post请求必须设置允许输出 默认false
+            urlConn.setDoOutput(true);
+            //设置请求允许输入 默认是true
+            urlConn.setDoInput(true);
+            // Post请求不能使用缓存
+            urlConn.setUseCaches(false);
+            // 设置为Post请求
+            urlConn.setRequestMethod("POST");
+            //设置本次连接是否自动处理重定向
+            urlConn.setInstanceFollowRedirects(true);
+            // 配置请求Content-Type
+            urlConn.setRequestProperty("Content-Type", "application/json");
+            // 开始连接
+            String content = String.valueOf(json);
+            urlConn.connect();
+            // 发送请求参数
+            DataOutputStream dos = new DataOutputStream(urlConn.getOutputStream());
+            dos.writeBytes(content);
+            dos.flush();
+            dos.close();
+            // 判断请求是否成功
+            if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                Log.i("log", "接受返回值");
+                InputStreamReader in = new InputStreamReader(urlConn.getInputStream());
+                BufferedReader bf = new BufferedReader(in);
+                String recData = null;
+                String result = "";
+                while ((recData = bf.readLine()) != null) {
+                    result += recData;
+                }
+                in.close();
+                urlConn.disconnect();
 
-            Intent intent = new Intent();
-            intent.setClass(LoginOrRegister.this, MainScreen.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            editor.commit();
-
-            if(OldUser == true){
-                intent.putExtra("String", "LoginSuccess");
+                JSONObject json_res = JSONObject.fromObject(result);
+                if (json_res.get("RESULTCODE").equals("1")) {
+                    MessageEvent messageEvent = new MessageEvent(String.valueOf(1));
+                    EventBus.getDefault().post(messageEvent);
+                } else {
+                    MessageEvent messageEvent = new MessageEvent(String.valueOf(2));
+                    EventBus.getDefault().post(messageEvent);
+                }
+            } else {
+                MessageEvent messageEvent = new MessageEvent(String.valueOf(2));
+                EventBus.getDefault().post(messageEvent);
             }
-            if(OldUser == false) {
-                intent.putExtra("String", "RegisterSuccess");
-            }
-            intent.putExtra("User", loginUser);
-            intent.putExtra("loginState", 1);
-            startActivity(intent);
-            //mAuthTask = new UserLoginTask(username, password);
-            //mAuthTask.execute((Void) null);
+            // 关闭连接
+            urlConn.disconnect();
+        } catch (Exception e) {
+            MessageEvent messageEvent = new MessageEvent(String.valueOf(3));
+            EventBus.getDefault().post(messageEvent);
         }
     }
+
+    class LoginThread implements Runnable{
+        public void run(){
+            sendJson();
+        }
+    }
+
 
     /**
      * Shows the progress UI and hides the login form.
