@@ -35,8 +35,8 @@ public class ServerObserverService extends Service {
     private int new_food;
     private boolean stop = false;
     Thread mThread;
-    String baseUrl = "http://192.168.1.33:8080/web/FoodUpdateService";
-    //String baseUrl = "http://192.168.43.214:8080/web/FoodUpdateService";
+    //String baseUrl = "http://192.168.1.33:8080/web/FoodUpdateService";
+    String baseUrl = "http://192.168.43.214:8080/web/FoodUpdateService";
     String foodType[] = {"cold_food","hot_food","sea_food","drink_food"};
     public ServerObserverService() {
     }
@@ -188,7 +188,7 @@ public class ServerObserverService extends Service {
             dos.close();
             // 判断请求是否成功
             if(urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                Log.i("log", "接受返回值");
+                System.out.println("==============开始连接！");
                 InputStreamReader in = new InputStreamReader(urlConn.getInputStream());
                 BufferedReader bf = new BufferedReader(in);
                 String recData = null;
@@ -208,7 +208,20 @@ public class ServerObserverService extends Service {
                     message.setData(bundle);
                     message.what = 2;
                     mHandler.sendMessage(message);
+                    System.out.println("==============接收长度："+ food_list.size());
                 }
+
+                /*if(result != "") {
+                    Message message = new Message();
+                    Bundle bundle = new Bundle();
+                    List<Food> food_list = new ArrayList<>(FoodGetFromXml(result));
+                    bundle.putSerializable(FoodType, (Serializable) food_list);
+                    bundle.putString("FoodType", FoodType);
+                    message.setData(bundle);
+                    message.what = 2;
+                    mHandler.sendMessage(message);
+                    System.out.println("==============接收长度：" + food_list.size());
+                }*/
             } else {
             }
             // 关闭连接
@@ -226,6 +239,29 @@ public class ServerObserverService extends Service {
         for (int i = 0; i < json_array.size(); i++) {
             jsonObject = json_array.getJSONObject(i);
             info = new Food(jsonObject.getString("food_name"),jsonObject.getInt("food_price"));
+            foodList.add(info);
+        }
+        return foodList;
+    }
+
+    private List<Food> FoodGetFromXml(String Xml){
+        if (Xml == null)
+            return new ArrayList<>();
+        List<Food> foodList = new ArrayList<>();
+        Food info = null;
+        int index = 0;
+        int count = 0;
+        while((index = Xml.indexOf("Food id", index)) != -1) {
+            index += "Food id".length();
+            count++;
+        }
+        String str[] =Xml.split("<Food id");
+        for (int i = 1; i < count+1; i++) {
+            String food_str[] =str[i].split("<food_name>");
+            String food_name[] = food_str[1].split("</food_name>");
+            String food_price[] = food_name[1].split("<food_price>");
+            String food_p[] = food_price[1].split("</food_price>");
+            info = new Food(food_name[0],Integer.valueOf(food_p[0]));
             foodList.add(info);
         }
         return foodList;
