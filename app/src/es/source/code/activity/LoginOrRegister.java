@@ -82,8 +82,8 @@ public class LoginOrRegister extends Activity implements LoaderCallbacks<Cursor>
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-    //String baseUrl = "http://192.168.1.33:8080/web/LoginValidator";
-    String baseUrl = "http://192.168.43.214:8080/web/LoginValidator";
+    String baseUrl = "http://192.168.1.33:8080/web/LoginValidator";
+    //String baseUrl = "http://192.168.43.214:8080/web/LoginValidator";
     // UI references.
     private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;

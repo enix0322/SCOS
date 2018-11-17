@@ -181,7 +181,7 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
         return total_num;
     }
 
-    class MyAsyncTask extends AsyncTask<String, Void, Boolean> {
+    class MyAsyncTask extends AsyncTask<Integer, Integer, Boolean> {
 
         //onPreExecute用于异步处理前的操作
         @Override
@@ -194,18 +194,26 @@ public class FragmentOrderFood extends Fragment implements Food_Not_Order_Adapte
 
         //在doInBackground方法中进行异步任务的处理.
         @Override
-        protected Boolean doInBackground(String... params) {
+        protected Boolean doInBackground(Integer... params) {
             //获取传进来的参数
-            for(int i=0;i<100;i++) {
+            int i;
+            for(i=0;i<100;i++) {
                 try {
                     Thread.sleep(60);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                progressBar.setProgress(i);
+                publishProgress(i);
             }
             return true;
         }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            int value = values[0];
+            progressBar.setProgress(value);
+        }
+
         //onPostExecute用于UI的更新.此方法的参数为doInBackground方法返回的值.
         protected void onPostExecute(Boolean bool) {
             //隐藏progressBar

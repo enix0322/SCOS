@@ -35,8 +35,8 @@ public class ServerObserverService extends Service {
     private int new_food;
     private boolean stop = false;
     Thread mThread;
-    //String baseUrl = "http://192.168.1.33:8080/web/FoodUpdateService";
-    String baseUrl = "http://192.168.43.214:8080/web/FoodUpdateService";
+    String baseUrl = "http://192.168.1.33:8080/web/FoodUpdateService";
+    //String baseUrl = "http://192.168.43.214:8080/web/FoodUpdateService";
     String foodType[] = {"cold_food","hot_food","sea_food","drink_food"};
     public ServerObserverService() {
     }
